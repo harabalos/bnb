@@ -16,15 +16,19 @@ public class AccommodationServer {
     private static List<Accommodation> accommodationsList = new ArrayList<>();
     // Predefined addresses for worker servers
     private static List<String> workerAddresses = List.of(
-            "192.168.2.94:5001",
-            "192.168.2.94:5002",
-            "192.168.2.94:5003"
+            "192.168.0.6:5001",
+            "192.168.0.6:5002",
+            "192.168.0.6:5003"
     );
 
     // Entry point for the server
-    public static void main(String[] args) throws JSONException {
+    public static void main(String[] args) {
         // Load accommodations from JSON file into memory
-        loadAccommodationsFromJson();
+        try {
+            loadAccommodationsFromJson();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         int port = 4321; // The port number the server will listen on
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
@@ -43,13 +47,13 @@ public class AccommodationServer {
 
     // Method to load accommodations from a JSON file
     private static void loadAccommodationsFromJson() throws JSONException {
-        // Try to read the accommodations.json file
-        try (FileReader reader = new FileReader("accommodations.json")) {
-            // Parse the JSON data into an array
-            JSONArray accommodationsArray = new JSONArray(new JSONTokener(reader));
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Date format for parsing
-
-            // Iterate over each JSON object in the array and create Accommodation instances
+        try (BufferedReader reader = new BufferedReader(new FileReader("accommodations.json"))) {
+            StringBuilder jsonBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+            JSONArray accommodationsArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
             for (int i = 0; i < accommodationsArray.length(); i++) {
                 JSONObject accommodationObject = accommodationsArray.getJSONObject(i);
                 // Extract details from each JSON object
@@ -61,6 +65,7 @@ public class AccommodationServer {
                 String imagePath = accommodationObject.getString("imagePath");
 
                 // Parse the dates
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 JSONArray jsonAvailableDates = accommodationObject.getJSONArray("availableDates");
                 ArrayList<Date> availableDates = new ArrayList<>();
                 for (int j = 0; j < jsonAvailableDates.length(); j++) {
@@ -68,10 +73,31 @@ public class AccommodationServer {
                         Date date = sdf.parse(jsonAvailableDates.getString(j));
                         availableDates.add(date);
                     } catch (ParseException e) {
-                        // Handle the error if date parsing fails
                         System.err.println("Error parsing the date: " + e.getMessage());
                     }
                 }
+
+                // Parse the bookings
+                JSONArray jsonBookings = accommodationObject.getJSONArray("bookings");
+                ArrayList<Booking> bookings = new ArrayList<>();
+                for (int j = 0; j < jsonBookings.length(); j++) {
+                    JSONObject bookingObject = jsonBookings.getJSONObject(j);
+                    String bookingId = bookingObject.getString("bookingId");
+                    String userId = bookingObject.getString("userId");
+                    Date startDate = null;
+                    Date endDate = null;
+                    try {
+                        startDate = sdf.parse(bookingObject.getString("startDate"));
+                        endDate = sdf.parse(bookingObject.getString("endDate"));
+                    } catch (ParseException e) {
+                        System.err.println("Error parsing the booking date: " + e.getMessage());
+                    }
+                    Booking booking = new Booking(bookingId, userId, startDate, endDate);
+                    bookings.add(booking);
+                }
+
+                // Extract managerId
+                String managerId = accommodationObject.getString("managerId");
 
                 // Create a new Accommodation object and add it to the list
                 Accommodation accommodation = new Accommodation(
@@ -81,15 +107,15 @@ public class AccommodationServer {
                         availableDates,
                         pricePerNight,
                         rating,
-                        imagePath
+                        imagePath,
+                        bookings,
+                        managerId
                 );
                 accommodationsList.add(accommodation);
             }
         } catch (FileNotFoundException e) {
-            // If the file is not found, log an error and start with an empty list
             System.err.println("The JSON file was not found, starting with an empty list.");
         } catch (IOException e) {
-            // If an IO error occurs when reading the file, log the error
             System.err.println("Error reading the JSON file: " + e.getMessage());
         }
     }
@@ -130,12 +156,22 @@ public class AccommodationServer {
                         System.out.println("Received and added accommodation: " + accommodation.getName());
                         output.writeObject("Accommodation " + accommodation.getName() + " added successfully");
                         output.flush(); // Flush the stream to ensure the message is sent
+                    } else if (obj instanceof String) {
+                        String command = (String) obj;
+                        if ("view".equals(command)) {
+                            String managerId = (String) input.readObject();
+                            String response = viewAccommodations(managerId);
+                            output.writeObject(response);
+                            output.flush();
+                        }
                     }
                 }
-            } catch (IOException | ClassNotFoundException | JSONException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 // Handle exceptions related to IO and class not found
                 System.out.println("Server exception: " + ex.getMessage());
                 ex.printStackTrace();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             } finally {
                 // In the finally block, close all resources
                 try {
@@ -205,12 +241,22 @@ public class AccommodationServer {
             }
 
             // Write the JSONArray to the file
-            try (FileWriter file = new FileWriter("/Users/orfanidisandreas/Downloads/bnb/accommodations.json")) {
+            try (FileWriter file = new FileWriter("accommodations.json")) {
                 file.write(accommodationsArray.toString(4)); // Write JSON with indentation
             } catch (IOException e) {
                 // Handle exceptions related to file writing
                 e.printStackTrace();
             }
+        }
+
+        private String viewAccommodations(String managerId) throws JSONException {
+            JSONArray accommodationsArray = new JSONArray();
+            for (Accommodation accommodation : accommodationsList) {
+                if (accommodation.getManagerId().equals(managerId)) {
+                    accommodationsArray.put(accommodation.toJSON());
+                }
+            }
+            return accommodationsArray.toString(4);
         }
     }
 }

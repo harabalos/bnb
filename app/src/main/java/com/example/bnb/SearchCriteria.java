@@ -1,4 +1,3 @@
-package com.example.bnb;
 import java.io.Serializable;
 
 public class SearchCriteria implements Serializable {

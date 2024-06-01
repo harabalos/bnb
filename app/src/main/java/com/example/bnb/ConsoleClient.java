@@ -1,83 +1,241 @@
 package com.example.bnb;
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Date;
 
-// This class is responsible for connecting to the server and performing actions such as adding accommodations.
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ref.WeakReference;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConsoleClient {
-    // Server details for establishing the connection
     private String host;
     private int port;
+    private List<User> users = new ArrayList<>();
+    private static final String USER_FILE_PATH = "res/assets/users.json";
+    private WeakReference<Context> contextRef;
 
-    // Constructor initializes the client with server host and port
-    public ConsoleClient(String host, int port) {
+    public ConsoleClient(String host, int port, Context context) {
         this.host = host;
         this.port = port;
-    }
-
-    // Starts the client to interact with the server
-    public void start() {
-        // Try-with-resources to ensure proper closure of resources
-        try (Socket socket = new Socket(host, port); // Establish a socket connection to the server
-             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream()); // Output stream to send data to the server
-             ObjectInputStream in = new ObjectInputStream(socket.getInputStream()); // Input stream to receive data from the server
-             BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in))) { // Reader to get user input from the console
-
-            String userInput; // Variable to hold user input
-
-            // Prompt the user for input
-            System.out.println("Enter 'add' to add a new accommodation, or 'exit' to quit:");
-            while (!(userInput = consoleInput.readLine()).equals("exit")) { // Process user commands until 'exit' command is received
-                if ("add".equals(userInput)) { // If user enters 'add', collect accommodation data
-                    // Collecting accommodation details from user
-                    System.out.println("Enter accommodation name:");
-                    String name = consoleInput.readLine();
-
-                    System.out.println("Enter location:");
-                    String location = consoleInput.readLine();
-
-                    System.out.println("Enter capacity (number of guests):");
-                    int capacity = Integer.parseInt(consoleInput.readLine());
-
-                    // Placeholder for dates, since it's not implemented yet
-                    ArrayList<Date> availableDates = new ArrayList<>();
-
-                    System.out.println("Enter price per night:");
-                    double pricePerNight = Double.parseDouble(consoleInput.readLine());
-
-                    System.out.println("Enter rating (1-5):");
-                    float rating = Float.parseFloat(consoleInput.readLine());
-
-                    System.out.println("Enter image path:");
-                    String imagePath = consoleInput.readLine();
-
-                    // Create an Accommodation object with the provided details
-                    Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath);
-                    out.writeObject(accommodation); // Send the Accommodation object to the server
-
-                    // Wait for a response from the server and print it
-                    String response = (String) in.readObject();
-                    System.out.println("Server response: " + response);
-                } else {
-                    System.out.println("Unknown command."); // Handle unknown commands
-                }
-                // Prompt for the next command
-                System.out.println("Enter 'add' to add a new accommodation, or 'exit' to quit:");
-            }
-
-        } catch (UnknownHostException ex) { // Handle errors related to unknown host
-            System.out.println("Server not found: " + ex.getMessage());
-        } catch (IOException | ClassNotFoundException ex) { // Handle IO errors or errors related to class not being found
-            System.out.println("Error: " + ex.getMessage());
-        } catch (NumberFormatException ex) { // Handle errors related to number format
-            System.out.println("Input error: Please make sure you enter valid numbers for capacity, price, and rating.");
+        this.contextRef = new WeakReference<>(context);
+        try {
+            loadUsersFromFile();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    // Main method to start the client application
-    public static void main(String[] args) {
-        ConsoleClient client = new ConsoleClient("192.168.2.94", 4321); // Create a client instance with the specified server details
-        client.start(); // Start the client
+    private void loadUsersFromFile() throws JSONException {
+        Context context = contextRef.get();
+        if (context == null) {
+            return; // Το context δεν είναι διαθέσιμο, άρα επιστρέφουμε
+        }
+
+        AssetManager assetManager = context.getAssets();
+        StringBuilder jsonBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open(USER_FILE_PATH)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+            JSONArray userArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
+            for (int i = 0; i < userArray.length(); i++) {
+                JSONObject userObject = userArray.getJSONObject(i);
+                String id = userObject.getString("id");
+                String username = userObject.getString("username");
+                String password = userObject.getString("password");
+                boolean isManager = userObject.getBoolean("isManager");
+                User user = new User(username, password, isManager);
+                user.setId(id);
+                users.add(user);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveUsersToFile() throws JSONException {
+        JSONArray userArray = new JSONArray();
+        for (User user : users) {
+            JSONObject userObject = new JSONObject();
+            userObject.put("id", user.getId());
+            userObject.put("username", user.getUsername());
+            userObject.put("password", user.getPassword());
+            userObject.put("isManager", user.isManager());
+            userArray.put(userObject);
+        }
+
+        Context context = contextRef.get();
+        if (context == null) {
+            return;
+        }
+
+        try (FileWriter file = new FileWriter(context.getFilesDir() + "/" + USER_FILE_PATH)) {
+            file.write(userArray.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean addUser(User user) {
+        for (User u : users) {
+            if (u.getUsername().equals(user.getUsername())) {
+                return false;
+            }
+        }
+        users.add(user);
+        try {
+            saveUsersToFile();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    public User authenticate(String username, String password) {
+        for (User user : users) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public void authenticateAsync(String username, String password, AuthenticationCallback callback) {
+        new AuthenticateTask(this, callback).execute(username, password);
+    }
+
+    public void addAccommodationAsync(Accommodation accommodation, AccommodationCallback callback) {
+        new AddAccommodationTask(this, callback).execute(accommodation);
+    }
+
+    public void viewAccommodationsAsync(String managerId, ViewAccommodationsCallback callback) {
+        new ViewAccommodationsTask(this, callback).execute(managerId);
+    }
+
+    public interface AuthenticationCallback {
+        void onAuthenticationResult(User user);
+    }
+
+    public interface AccommodationCallback {
+        void onAccommodationResult(String response);
+    }
+
+    public interface ViewAccommodationsCallback {
+        void onViewAccommodationsResult(String response);
+    }
+
+    private static class AuthenticateTask extends AsyncTask<String, Void, User> {
+        private WeakReference<ConsoleClient> clientRef;
+        private AuthenticationCallback callback;
+
+        AuthenticateTask(ConsoleClient client, AuthenticationCallback callback) {
+            this.clientRef = new WeakReference<>(client);
+            this.callback = callback;
+        }
+
+        @Override
+        protected User doInBackground(String... params) {
+            String username = params[0];
+            String password = params[1];
+            ConsoleClient client = clientRef.get();
+            return client != null ? client.authenticate(username, password) : null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            if (callback != null) {
+                callback.onAuthenticationResult(user);
+            }
+        }
+    }
+
+    private static class AddAccommodationTask extends AsyncTask<Accommodation, Void, String> {
+        private WeakReference<ConsoleClient> clientRef;
+        private AccommodationCallback callback;
+
+        AddAccommodationTask(ConsoleClient client, AccommodationCallback callback) {
+            this.clientRef = new WeakReference<>(client);
+            this.callback = callback;
+        }
+
+        @Override
+        protected String doInBackground(Accommodation... params) {
+            Accommodation accommodation = params[0];
+            ConsoleClient client = clientRef.get();
+            if (client == null) {
+                return null;
+            }
+
+            try (Socket socket = new Socket(client.host, client.port);
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+                out.writeObject(accommodation);
+                return (String) in.readObject();
+            } catch (Exception e) {
+                Log.e("ConsoleClient", "Error adding accommodation", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            if (callback != null) {
+                callback.onAccommodationResult(response);
+            }
+        }
+    }
+
+    private static class ViewAccommodationsTask extends AsyncTask<String, Void, String> {
+        private WeakReference<ConsoleClient> clientRef;
+        private ViewAccommodationsCallback callback;
+
+        ViewAccommodationsTask(ConsoleClient client, ViewAccommodationsCallback callback) {
+            this.clientRef = new WeakReference<>(client);
+            this.callback = callback;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String managerId = params[0];
+            ConsoleClient client = clientRef.get();
+            if (client == null) {
+                return null;
+            }
+
+            try (Socket socket = new Socket(client.host, client.port);
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+                out.writeObject("view");
+                out.writeObject(managerId);
+                return (String) in.readObject();
+            } catch (Exception e) {
+                Log.e("ConsoleClient", "Error viewing accommodations", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            if (callback != null) {
+                callback.onViewAccommodationsResult(response);
+            }
+        }
     }
 }

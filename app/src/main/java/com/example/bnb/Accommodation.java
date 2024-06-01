@@ -3,29 +3,29 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import org.json.JSONException;
-
 
 // Accommodation class to model the data and behavior of an accommodation entity
 public class Accommodation implements Serializable {
     // serialVersionUID is used to ensure that a loaded class corresponds exactly to a serialized object
     private static final long serialVersionUID = 1L;
 
-    // Fields to store the accommodation's details
-    private String name; // Name of the accommodation
-    private String location; // Location of the accommodation
-    private int capacity; // Number of guests it can accommodate
-    private ArrayList<Date> availableDates; // Dates when the accommodation is available
-    private double pricePerNight; // Price per night
-    private float rating; // Average rating from reviews, range 1-5
-    private String imagePath; // File path to an image of the accommodation
 
-    // Constructor to initialize an Accommodation object with all its details
+    private String name;
+    private String location;
+    private int capacity;
+    private ArrayList<Date> availableDates;
+    private double pricePerNight;
+    private float rating;
+    private String imagePath;
+    private ArrayList<Booking> bookings;
+    private String managerId;
+
     public Accommodation(String name, String location, int capacity, ArrayList<Date> availableDates,
-                         double pricePerNight, float rating, String imagePath) {
+                         double pricePerNight, float rating, String imagePath, ArrayList<Booking> bookings, String managerId) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
@@ -33,13 +33,14 @@ public class Accommodation implements Serializable {
         this.pricePerNight = pricePerNight;
         this.rating = rating;
         this.imagePath = imagePath;
+        this.bookings = bookings;
+        this.managerId = managerId;
     }
 
-    // Default constructor for the case when an Accommodation is created without any initial data
-    public Accommodation() {
-    }
 
-    // Method to convert the Accommodation object's data into a JSONObject for serialization
+    public Accommodation(){}
+
+
     public JSONObject toJSON() throws JSONException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         JSONObject jsonObj = new JSONObject();
@@ -52,14 +53,25 @@ public class Accommodation implements Serializable {
 
         JSONArray datesArray = new JSONArray();
         for (Date date : this.availableDates) {
-            datesArray.put(sdf.format(date)); // Format each date into the specified date format
+            datesArray.put(sdf.format(date));
         }
         jsonObj.put("availableDates", datesArray);
+
+        JSONArray bookingsArray = new JSONArray();
+        for (Booking booking : this.bookings) {
+            JSONObject bookingObj = new JSONObject();
+            bookingObj.put("bookingId", booking.getBookingId());
+            bookingObj.put("userId", booking.getUserId());
+            bookingObj.put("startDate", sdf.format(booking.getStartDate()));
+            bookingObj.put("endDate", sdf.format(booking.getEndDate()));
+            bookingsArray.put(bookingObj);
+        }
+        jsonObj.put("bookings", bookingsArray);
+        jsonObj.put("managerId", this.managerId);
 
         return jsonObj;
     }
 
-    // Static method to create an Accommodation object from a JSONObject
     public static Accommodation fromJson(JSONObject jsonObject) throws JSONException {
         Accommodation accommodation = new Accommodation();
         accommodation.name = jsonObject.getString("name");
@@ -69,7 +81,6 @@ public class Accommodation implements Serializable {
         accommodation.rating = (float) jsonObject.getDouble("rating");
         accommodation.imagePath = jsonObject.getString("imagePath");
 
-        // Parsing the availableDates which are expected to be an array of date strings
         JSONArray datesArray = jsonObject.getJSONArray("availableDates");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         accommodation.availableDates = new ArrayList<>();
@@ -77,9 +88,29 @@ public class Accommodation implements Serializable {
             try {
                 accommodation.availableDates.add(dateFormat.parse(datesArray.getString(i)));
             } catch (ParseException e) {
-                e.printStackTrace(); // Handle the error if date parsing fails
+                e.printStackTrace();
             }
         }
+
+        JSONArray bookingsArray = jsonObject.getJSONArray("bookings");
+        accommodation.bookings = new ArrayList<>();
+        for (int i = 0; i < bookingsArray.length(); i++) {
+            JSONObject bookingObj = bookingsArray.getJSONObject(i);
+            String bookingId = bookingObj.getString("bookingId");
+            String userId = bookingObj.getString("userId");
+            Date startDate = null;
+            Date endDate = null;
+            try {
+                startDate = dateFormat.parse(bookingObj.getString("startDate"));
+                endDate = dateFormat.parse(bookingObj.getString("endDate"));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Booking booking = new Booking(bookingId, userId, startDate, endDate);
+            accommodation.bookings.add(booking);
+        }
+
+        accommodation.managerId = jsonObject.getString("managerId");
 
         return accommodation;
     }
@@ -142,5 +173,9 @@ public class Accommodation implements Serializable {
         this.imagePath = imagePath;
     }
 
-    // Additional methods like toString() for easy printing/logging can be added here
+    public String getManagerId(){
+        return this.managerId;
+    }
+
+
 }
