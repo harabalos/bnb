@@ -24,6 +24,7 @@ public class AddAccommodationActivity extends AppCompatActivity {
     private ArrayList<Date> availableDates;
     private SimpleDateFormat dateFormatter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,9 @@ public class AddAccommodationActivity extends AppCompatActivity {
 
         Button addAccommodationButton = findViewById(R.id.addAccommodationButton);
         addAccommodationButton.setOnClickListener(v -> addAccommodation());
+        Button goBackButton = findViewById(R.id.goBackButton);
+        goBackButton.setOnClickListener(view -> finish());
+
     }
 
     private void showDatePicker(final EditText dateEditText) {

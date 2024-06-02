@@ -1,4 +1,5 @@
 package com.example.bnb;
+
 import java.io.*;
 import java.net.*;
 import java.text.ParseException;
@@ -47,7 +48,7 @@ public class AccommodationServer {
 
     // Method to load accommodations from a JSON file
     private static void loadAccommodationsFromJson() throws JSONException {
-        try (BufferedReader reader = new BufferedReader(new FileReader("app/src/main/assets/accommodation.json"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("app/src/main/app_data/accommodation.json"))) {
             StringBuilder jsonBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -241,7 +242,7 @@ public class AccommodationServer {
             }
 
             // Write the JSONArray to the file
-            try (FileWriter file = new FileWriter("accommodations.json")) {
+            try (FileWriter file = new FileWriter("app/src/main/app_data/accommodation.json")) {
                 file.write(accommodationsArray.toString(4)); // Write JSON with indentation
             } catch (IOException e) {
                 // Handle exceptions related to file writing

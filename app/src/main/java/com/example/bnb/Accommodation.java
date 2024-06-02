@@ -177,5 +177,7 @@ public class Accommodation implements Serializable {
         return this.managerId;
     }
 
+    public ArrayList<Booking> getBookings(){return this.bookings;}
+
 
 }

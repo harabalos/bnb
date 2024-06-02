@@ -20,14 +20,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ConsoleClient {
     private String host;
     private int port;
     private List<User> users = new ArrayList<>();
+    private List<Accommodation> accommodations = new ArrayList<>();
     private static final String USER_FILE_PATH = "app_data/users.json";
+    private static final String ACCOMMODATION_FILE_PATH = "app_data/accommodation.json";
     private WeakReference<Context> contextRef;
 
     public ConsoleClient(String host, int port, Context context) {
@@ -36,6 +41,7 @@ public class ConsoleClient {
         this.contextRef = new WeakReference<>(context);
         try {
             loadUsersFromFile();
+            loadAccommodationsFromFile();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -78,6 +84,69 @@ public class ConsoleClient {
         }
     }
 
+    private void loadAccommodationsFromFile() throws JSONException {
+        Context context = contextRef.get();
+        if (context == null) {
+            return;
+        }
+
+        File accommodationFile = new File(context.getFilesDir(), ACCOMMODATION_FILE_PATH);
+        if (!accommodationFile.exists()) {
+            Log.e("ConsoleClient", "Accommodation file does not exist: " + accommodationFile.getAbsolutePath());
+            return;
+        }
+
+        Log.d("ConsoleClient", "Loading accommodations from: " + accommodationFile.getAbsolutePath());
+
+        StringBuilder jsonBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(accommodationFile)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+            JSONArray accommodationArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
+            for (int i = 0; i < accommodationArray.length(); i++) {
+                JSONObject accommodationObject = accommodationArray.getJSONObject(i);
+                String name = accommodationObject.getString("name");
+                String location = accommodationObject.getString("location");
+                int capacity = accommodationObject.getInt("capacity");
+                double pricePerNight = accommodationObject.getDouble("pricePerNight");
+                float rating = (float) accommodationObject.getDouble("rating");
+                String imagePath = accommodationObject.getString("imagePath");
+
+                JSONArray jsonAvailableDates = accommodationObject.getJSONArray("availableDates");
+                ArrayList<Date> availableDates = new ArrayList<>();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                for (int j = 0; j < jsonAvailableDates.length(); j++) {
+                    availableDates.add(sdf.parse(jsonAvailableDates.getString(j)));
+                }
+
+                JSONArray jsonBookings = accommodationObject.getJSONArray("bookings");
+                ArrayList<Booking> bookings = new ArrayList<>();
+                for (int j = 0; j < jsonBookings.length(); j++) {
+                    JSONObject bookingObject = jsonBookings.getJSONObject(j);
+                    String bookingId = bookingObject.getString("bookingId");
+                    String userId = bookingObject.getString("userId");
+                    Date startDate = sdf.parse(bookingObject.getString("startDate"));
+                    Date endDate = sdf.parse(bookingObject.getString("endDate"));
+                    bookings.add(new Booking(bookingId, userId, startDate, endDate));
+                }
+
+                String managerId = accommodationObject.getString("managerId");
+
+                Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath, bookings, managerId);
+                accommodations.add(accommodation);
+            }
+        } catch (IOException e) {
+            Log.e("ConsoleClient", "Error reading accommodation.json file: " + e.getMessage());
+            e.printStackTrace();
+        } catch (JSONException | ParseException e) {
+            Log.e("ConsoleClient", "Error parsing accommodation.json file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void saveUsersToFile() throws JSONException {
         JSONArray userArray = new JSONArray();
         for (User user : users) {
@@ -108,6 +177,58 @@ public class ConsoleClient {
         }
     }
 
+    private void saveAccommodationsToFile() throws JSONException {
+        JSONArray accommodationArray = new JSONArray();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (Accommodation accommodation : accommodations) {
+            JSONObject accommodationObject = new JSONObject();
+            accommodationObject.put("name", accommodation.getName());
+            accommodationObject.put("location", accommodation.getLocation());
+            accommodationObject.put("capacity", accommodation.getCapacity());
+            accommodationObject.put("pricePerNight", accommodation.getPricePerNight());
+            accommodationObject.put("rating", accommodation.getRating());
+            accommodationObject.put("imagePath", accommodation.getImagePath());
+
+            JSONArray jsonAvailableDates = new JSONArray();
+            for (Date date : accommodation.getAvailableDates()) {
+                jsonAvailableDates.put(sdf.format(date));
+            }
+            accommodationObject.put("availableDates", jsonAvailableDates);
+
+            JSONArray jsonBookings = new JSONArray();
+            for (Booking booking : accommodation.getBookings()) {
+                JSONObject bookingObject = new JSONObject();
+                bookingObject.put("bookingId", booking.getBookingId());
+                bookingObject.put("userId", booking.getUserId());
+                bookingObject.put("startDate", sdf.format(booking.getStartDate()));
+                bookingObject.put("endDate", sdf.format(booking.getEndDate()));
+                jsonBookings.put(bookingObject);
+            }
+            accommodationObject.put("bookings", jsonBookings);
+
+            accommodationObject.put("managerId", accommodation.getManagerId());
+
+            accommodationArray.put(accommodationObject);
+        }
+
+        Context context = contextRef.get();
+        if (context == null) {
+            return;
+        }
+
+        File accommodationFile = new File(context.getFilesDir(), ACCOMMODATION_FILE_PATH);
+        if (!accommodationFile.getParentFile().exists()) {
+            accommodationFile.getParentFile().mkdirs(); // Create the app_data directory if it doesn't exist
+        }
+
+        try (FileWriter file = new FileWriter(accommodationFile)) {
+            Log.d("ConsoleClient", "Saving accommodations to: " + accommodationFile.getAbsolutePath());
+            file.write(accommodationArray.toString());
+        } catch (IOException e) {
+            Log.e("ConsoleClient", "Error saving accommodations to file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public boolean addUser(User user) {
         for (User u : users) {
@@ -118,6 +239,16 @@ public class ConsoleClient {
         users.add(user);
         try {
             saveUsersToFile();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    public boolean addAccommodation(Accommodation accommodation) {
+        accommodations.add(accommodation);
+        try {
+            saveAccommodationsToFile();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
