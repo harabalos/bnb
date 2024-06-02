@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Bnb"
         tools:targetApi="31">
         <activity
+            android:name=".ViewAccommodationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddAccommodationActivity"
+            android:exported="false" />
+        <activity
             android:name=".ClientHomepageActivity"
             android:exported="false" />
         <activity
@@ -26,7 +32,7 @@
             android:exported="false" />
         <activity
             android:name=".AuthenticationActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

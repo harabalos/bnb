@@ -9,8 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Accommodation"
-        android:layout_marginTop="20dp"
-        android:visibility="visible"/>
+        android:layout_marginTop="20dp" />
 
     <Button
         android:id="@+id/viewAccommodationsButton"
@@ -18,8 +17,7 @@
         android:layout_height="wrap_content"
         android:text="View Accommodations"
         android:layout_below="@id/addAccommodationButton"
-        android:layout_marginTop="20dp"
-        android:visibility="visible"/>
+        android:layout_marginTop="20dp" />
 
     <Button
         android:id="@+id/logoutButton"
@@ -27,7 +25,6 @@
         android:layout_height="wrap_content"
         android:text="Logout"
         android:layout_below="@id/viewAccommodationsButton"
-        android:layout_marginTop="20dp"
-        android:visibility="visible"/>
+        android:layout_marginTop="20dp" />
 
 </RelativeLayout>

@@ -48,10 +48,6 @@ public class ConsoleClient {
         }
 
         File userFile = new File(context.getFilesDir(), USER_FILE_PATH);
-        if (!userFile.exists()) {
-            Log.e("ConsoleClient", "User file does not exist: " + userFile.getAbsolutePath());
-            return;
-        }
 
         Log.d("ConsoleClient", "Loading users from: " + userFile.getAbsolutePath());
 
