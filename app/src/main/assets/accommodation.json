@@ -1,0 +1,46 @@
+[
+  {
+    "availableDates": [],
+    "imagePath": "ok",
+    "name": "ok",
+    "rating": 4,
+    "location": "yes",
+    "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
+    "bookings": [],
+    "pricePerNight": 4,
+    "capacity": 4
+  },
+  {
+    "availableDates": [],
+    "imagePath": "ok",
+    "name": "metaxaki",
+    "rating": 5,
+    "location": "lefkada",
+    "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
+    "bookings": [],
+    "pricePerNight": 120,
+    "capacity": 4
+  },
+  {
+    "availableDates": [],
+    "imagePath": "ok",
+    "name": "ok2",
+    "rating": 5,
+    "location": "yes",
+    "managerId": "46499007-438d-43f3-9b28-a078d47d6a60",
+    "bookings": [],
+    "pricePerNight": 123,
+    "capacity": 4
+  },
+  {
+    "availableDates": [],
+    "imagePath": "3",
+    "name": "ok3",
+    "rating": 3,
+    "location": "ok3",
+    "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
+    "bookings": [],
+    "pricePerNight": 3,
+    "capacity": 4
+  }
+]

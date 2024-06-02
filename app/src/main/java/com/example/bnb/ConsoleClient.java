@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +27,7 @@ public class ConsoleClient {
     private String host;
     private int port;
     private List<User> users = new ArrayList<>();
-    private static final String USER_FILE_PATH = "res/assets/users.json";
+    private static final String USER_FILE_PATH = "app_data/users.json";
     private WeakReference<Context> contextRef;
 
     public ConsoleClient(String host, int port, Context context) {
@@ -42,12 +44,20 @@ public class ConsoleClient {
     private void loadUsersFromFile() throws JSONException {
         Context context = contextRef.get();
         if (context == null) {
-            return; // Το context δεν είναι διαθέσιμο, άρα επιστρέφουμε
+            return;
         }
 
-        AssetManager assetManager = context.getAssets();
+        File userFile = new File(context.getFilesDir(), USER_FILE_PATH);
+        if (!userFile.exists()) {
+            Log.e("ConsoleClient", "User file does not exist: " + userFile.getAbsolutePath());
+            return;
+        }
+
+        Log.d("ConsoleClient", "Loading users from: " + userFile.getAbsolutePath());
+
         StringBuilder jsonBuilder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open(USER_FILE_PATH)))) {
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(userFile)))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 jsonBuilder.append(line);
@@ -64,6 +74,10 @@ public class ConsoleClient {
                 users.add(user);
             }
         } catch (IOException e) {
+            Log.e("ConsoleClient", "Error reading users.json file: " + e.getMessage());
+            e.printStackTrace();
+        } catch (JSONException e) {
+            Log.e("ConsoleClient", "Error parsing users.json file: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -84,12 +98,20 @@ public class ConsoleClient {
             return;
         }
 
-        try (FileWriter file = new FileWriter(context.getFilesDir() + "/" + USER_FILE_PATH)) {
+        File userFile = new File(context.getFilesDir(), USER_FILE_PATH);
+        if (!userFile.getParentFile().exists()) {
+            userFile.getParentFile().mkdirs(); // Create the app_data directory if it doesn't exist
+        }
+
+        try (FileWriter file = new FileWriter(userFile)) {
+            Log.d("ConsoleClient", "Saving users to: " + userFile.getAbsolutePath());
             file.write(userArray.toString());
         } catch (IOException e) {
+            Log.e("ConsoleClient", "Error saving users to file: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     public boolean addUser(User user) {
         for (User u : users) {

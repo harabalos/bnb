@@ -32,12 +32,19 @@ public class LoginActivity extends AppCompatActivity {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        // Εδώ προσθέστε τον έλεγχο της αυθεντικοποίησης με την κλάση ConsoleClient
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.authenticateAsync(username, password, user -> {
             if (user != null) {
                 runOnUiThread(() -> Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show());
-                // Προσθέστε την πλοήγηση στην επόμενη δραστηριότητα ανάλογα με το αν είναι manager ή όχι
+                // Navigate to the appropriate homepage
+                if (user.isManager()) {
+                    Intent intent = new Intent(this, ManagerHomepageActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(this, ClientHomepageActivity.class);
+                    startActivity(intent);
+                }
+                finish();
             } else {
                 runOnUiThread(() -> Toast.makeText(this, "Login failed: Invalid username or password.", Toast.LENGTH_SHORT).show());
             }
