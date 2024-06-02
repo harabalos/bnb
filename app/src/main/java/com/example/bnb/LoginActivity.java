@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Navigate to the appropriate homepage
                 if (user.isManager()) {
                     Intent intent = new Intent(this, ManagerHomepageActivity.class);
+                    intent.putExtra("id", user.getId());
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(this, ClientHomepageActivity.class);

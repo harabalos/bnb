@@ -15,7 +15,9 @@ public class ManagerHomepageActivity extends AppCompatActivity {
 
         Button addAccommodationButton = findViewById(R.id.addAccommodationButton);
         addAccommodationButton.setOnClickListener(v -> {
+            String managerId = getIntent().getStringExtra("id");
             Intent intent = new Intent(ManagerHomepageActivity.this, AddAccommodationActivity.class);
+            intent.putExtra("id", managerId);
             startActivity(intent);
         });
 

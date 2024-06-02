@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import android.content.Intent;
 
 public class AddAccommodationActivity extends AppCompatActivity {
 
@@ -23,12 +24,16 @@ public class AddAccommodationActivity extends AppCompatActivity {
     private EditText endDateEditText;
     private ArrayList<Date> availableDates;
     private SimpleDateFormat dateFormatter;
+    private String managerId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_accommodation);
+
+        Intent intent = getIntent();
+        managerId = intent.getStringExtra("id");
 
         nameEditText = findViewById(R.id.nameEditText);
         locationEditText = findViewById(R.id.locationEditText);
@@ -69,7 +74,7 @@ public class AddAccommodationActivity extends AppCompatActivity {
         float rating = Float.parseFloat(ratingEditText.getText().toString());
         String imagePath = imagePathEditText.getText().toString();
 
-        Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath, new ArrayList<>(), "managerId");
+        Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath, new ArrayList<>(), managerId);
 
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.addAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
