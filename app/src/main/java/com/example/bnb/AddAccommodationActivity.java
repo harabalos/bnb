@@ -149,11 +149,12 @@ public class AddAccommodationActivity extends AppCompatActivity {
             return;
         }
 
-        ArrayList<Date> availableDates = new ArrayList<>();
-        availableDates.add(startDate);
-        availableDates.add(endDate);
+        ArrayList<Date> availableStartDates = new ArrayList<>();
+        ArrayList<Date> availableEndDates = new ArrayList<>();
+        availableStartDates.add(startDate);
+        availableEndDates.add(endDate);
 
-        Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath, new ArrayList<>(), managerId);
+        Accommodation accommodation = new Accommodation(name, location, capacity, availableStartDates, availableEndDates, pricePerNight, rating, imagePath, new ArrayList<>(), managerId);
 
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.addAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
@@ -180,3 +181,5 @@ public class AddAccommodationActivity extends AppCompatActivity {
         }
     }
 }
+
+//Na ftiaksw to viewAccommodation

@@ -84,7 +84,7 @@ public class ConsoleClient {
         }
     }
 
-    private void loadAccommodationsFromFile() throws JSONException {
+    public void loadAccommodationsFromFile() {
         Context context = contextRef.get();
         if (context == null) {
             return;
@@ -106,46 +106,19 @@ public class ConsoleClient {
                 jsonBuilder.append(line);
             }
             JSONArray accommodationArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
+            accommodations.clear(); // Clear the existing list before loading new data
             for (int i = 0; i < accommodationArray.length(); i++) {
-                JSONObject accommodationObject = accommodationArray.getJSONObject(i);
-                String name = accommodationObject.getString("name");
-                String location = accommodationObject.getString("location");
-                int capacity = accommodationObject.getInt("capacity");
-                double pricePerNight = accommodationObject.getDouble("pricePerNight");
-                float rating = (float) accommodationObject.getDouble("rating");
-                String imagePath = accommodationObject.getString("imagePath");
-
-                JSONArray jsonAvailableDates = accommodationObject.getJSONArray("availableDates");
-                ArrayList<Date> availableDates = new ArrayList<>();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                for (int j = 0; j < jsonAvailableDates.length(); j++) {
-                    availableDates.add(sdf.parse(jsonAvailableDates.getString(j)));
-                }
-
-                JSONArray jsonBookings = accommodationObject.getJSONArray("bookings");
-                ArrayList<Booking> bookings = new ArrayList<>();
-                for (int j = 0; j < jsonBookings.length(); j++) {
-                    JSONObject bookingObject = jsonBookings.getJSONObject(j);
-                    String bookingId = bookingObject.getString("bookingId");
-                    String userId = bookingObject.getString("userId");
-                    Date startDate = sdf.parse(bookingObject.getString("startDate"));
-                    Date endDate = sdf.parse(bookingObject.getString("endDate"));
-                    bookings.add(new Booking(bookingId, userId, startDate, endDate));
-                }
-
-                String managerId = accommodationObject.getString("managerId");
-
-                Accommodation accommodation = new Accommodation(name, location, capacity, availableDates, pricePerNight, rating, imagePath, bookings, managerId);
-                accommodations.add(accommodation);
+                accommodations.add(Accommodation.fromJson(accommodationArray.getJSONObject(i)));
             }
         } catch (IOException e) {
             Log.e("ConsoleClient", "Error reading accommodation.json file: " + e.getMessage());
             e.printStackTrace();
-        } catch (JSONException | ParseException e) {
+        } catch (JSONException e) {
             Log.e("ConsoleClient", "Error parsing accommodation.json file: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     private void saveUsersToFile() throws JSONException {
         JSONArray userArray = new JSONArray();
@@ -179,36 +152,8 @@ public class ConsoleClient {
 
     private void saveAccommodationsToFile() throws JSONException {
         JSONArray accommodationArray = new JSONArray();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (Accommodation accommodation : accommodations) {
-            JSONObject accommodationObject = new JSONObject();
-            accommodationObject.put("name", accommodation.getName());
-            accommodationObject.put("location", accommodation.getLocation());
-            accommodationObject.put("capacity", accommodation.getCapacity());
-            accommodationObject.put("pricePerNight", accommodation.getPricePerNight());
-            accommodationObject.put("rating", accommodation.getRating());
-            accommodationObject.put("imagePath", accommodation.getImagePath());
-
-            JSONArray jsonAvailableDates = new JSONArray();
-            for (Date date : accommodation.getAvailableDates()) {
-                jsonAvailableDates.put(sdf.format(date));
-            }
-            accommodationObject.put("availableDates", jsonAvailableDates);
-
-            JSONArray jsonBookings = new JSONArray();
-            for (Booking booking : accommodation.getBookings()) {
-                JSONObject bookingObject = new JSONObject();
-                bookingObject.put("bookingId", booking.getBookingId());
-                bookingObject.put("userId", booking.getUserId());
-                bookingObject.put("startDate", sdf.format(booking.getStartDate()));
-                bookingObject.put("endDate", sdf.format(booking.getEndDate()));
-                jsonBookings.put(bookingObject);
-            }
-            accommodationObject.put("bookings", jsonBookings);
-
-            accommodationObject.put("managerId", accommodation.getManagerId());
-
-            accommodationArray.put(accommodationObject);
+            accommodationArray.put(accommodation.toJSON());
         }
 
         Context context = contextRef.get();

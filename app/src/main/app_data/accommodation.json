@@ -1,74 +1,62 @@
 [
     {
-        "availableDates": [],
-        "imagePath": "ok",
-        "name": "ok",
-        "rating": 4,
-        "location": "yes",
-        "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
-        "bookings": [],
-        "pricePerNight": 4,
-        "capacity": 4
-    },
-    {
-        "availableDates": [],
-        "imagePath": "ok",
+        "availableEndDates": ["2024-06-26"],
+        "imagePath": "metaxaki",
         "name": "metaxaki",
         "rating": 5,
-        "location": "lefkada",
-        "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
+        "availableStartDates": ["2024-06-19"],
+        "location": "poros",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
         "pricePerNight": 120,
         "capacity": 4
     },
     {
-        "availableDates": [],
-        "imagePath": "ok",
-        "name": "ok2",
+        "availableEndDates": ["2024-10-18"],
+        "imagePath": "okokahahah",
+        "name": "metaxakire",
         "rating": 5,
-        "location": "yes",
-        "managerId": "46499007-438d-43f3-9b28-a078d47d6a60",
+        "availableStartDates": ["2024-08-15"],
+        "location": "porosre",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
-        "pricePerNight": 123,
+        "pricePerNight": 120,
         "capacity": 4
     },
     {
-        "availableDates": [],
-        "imagePath": "3",
-        "name": "ok3",
-        "rating": 3,
-        "location": "ok3",
-        "managerId": "182a965c-6244-4f21-a6c6-5a9e7cda22a4",
-        "bookings": [],
-        "pricePerNight": 3,
-        "capacity": 4
-    },
-    {
-        "availableDates": [
-            "2024-06-11",
-            "2024-06-28"
-        ],
-        "imagePath": "qwer",
-        "name": "asdf",
-        "rating": 3,
-        "location": "asdf",
-        "managerId": "managerId",
-        "bookings": [],
-        "pricePerNight": 42,
-        "capacity": 3
-    },
-    {
-        "availableDates": [
-            "2024-06-04",
-            "2024-06-12"
-        ],
-        "imagePath": "qwer",
-        "name": "metaxaki",
+        "availableEndDates": ["2024-06-26"],
+        "imagePath": "sdg",
+        "name": "ok",
         "rating": 4,
-        "location": "lefkada",
-        "managerId": "managerId",
+        "availableStartDates": ["2024-06-12"],
+        "location": "ok",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
-        "pricePerNight": 100,
+        "pricePerNight": 4,
         "capacity": 4
+    },
+    {
+        "availableEndDates": ["2024-06-19"],
+        "imagePath": "hahaokre",
+        "name": "naireok",
+        "rating": 5,
+        "availableStartDates": ["2024-06-04"],
+        "location": "naireok",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
+        "bookings": [],
+        "pricePerNight": 120,
+        "capacity": 4
+    },
+    {
+        "availableEndDates": ["2024-06-26"],
+        "imagePath": "oopshaah",
+        "name": "BABAIS",
+        "rating": 4,
+        "availableStartDates": ["2024-06-06"],
+        "location": "BBABAIS",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
+        "bookings": [],
+        "pricePerNight": 1234,
+        "capacity": 3
     }
 ]

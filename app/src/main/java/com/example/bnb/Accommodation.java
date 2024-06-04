@@ -17,19 +17,21 @@ public class Accommodation implements Serializable {
     private String name;
     private String location;
     private int capacity;
-    private ArrayList<Date> availableDates;
+    private ArrayList<Date> availableStartDates;
+    private ArrayList<Date> availableEndDates;
     private double pricePerNight;
     private float rating;
     private String imagePath;
     private ArrayList<Booking> bookings;
     private String managerId;
 
-    public Accommodation(String name, String location, int capacity, ArrayList<Date> availableDates,
+    public Accommodation(String name, String location, int capacity,ArrayList<Date> availableStartDates, ArrayList<Date> availableEndDates,
                          double pricePerNight, float rating, String imagePath, ArrayList<Booking> bookings, String managerId) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.availableDates = availableDates;
+        this.availableStartDates = availableStartDates;
+        this.availableEndDates = availableEndDates;
         this.pricePerNight = pricePerNight;
         this.rating = rating;
         this.imagePath = imagePath;
@@ -51,11 +53,17 @@ public class Accommodation implements Serializable {
         jsonObj.put("rating", this.rating);
         jsonObj.put("imagePath", this.imagePath);
 
-        JSONArray datesArray = new JSONArray();
-        for (Date date : this.availableDates) {
-            datesArray.put(sdf.format(date));
+        JSONArray startDatesArray = new JSONArray();
+        for (Date date : this.availableStartDates) {
+            startDatesArray.put(sdf.format(date));
         }
-        jsonObj.put("availableDates", datesArray);
+        jsonObj.put("availableStartDates", startDatesArray);
+
+        JSONArray endDatesArray = new JSONArray();
+        for (Date date : this.availableEndDates) {
+            endDatesArray.put(sdf.format(date));
+        }
+        jsonObj.put("availableEndDates", endDatesArray);
 
         JSONArray bookingsArray = new JSONArray();
         for (Booking booking : this.bookings) {
@@ -72,6 +80,7 @@ public class Accommodation implements Serializable {
         return jsonObj;
     }
 
+
     public static Accommodation fromJson(JSONObject jsonObject) throws JSONException {
         Accommodation accommodation = new Accommodation();
         accommodation.name = jsonObject.getString("name");
@@ -81,15 +90,18 @@ public class Accommodation implements Serializable {
         accommodation.rating = (float) jsonObject.getDouble("rating");
         accommodation.imagePath = jsonObject.getString("imagePath");
 
-        JSONArray datesArray = jsonObject.getJSONArray("availableDates");
+        JSONArray startDatesArray = jsonObject.getJSONArray("availableStartDates");
+        JSONArray endDatesArray = jsonObject.getJSONArray("availableEndDates");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        accommodation.availableDates = new ArrayList<>();
-        for (int i = 0; i < datesArray.length(); i++) {
-            try {
-                accommodation.availableDates.add(dateFormat.parse(datesArray.getString(i)));
-            } catch (ParseException e) {
-                e.printStackTrace();
+        accommodation.availableStartDates = new ArrayList<>();
+        accommodation.availableEndDates = new ArrayList<>();
+        try {
+            for (int i = 0; i < startDatesArray.length(); i++) {
+                accommodation.availableStartDates.add(dateFormat.parse(startDatesArray.getString(i)));
+                accommodation.availableEndDates.add(dateFormat.parse(endDatesArray.getString(i)));
             }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         JSONArray bookingsArray = jsonObject.getJSONArray("bookings");
@@ -141,12 +153,20 @@ public class Accommodation implements Serializable {
         this.capacity = capacity;
     }
 
-    public ArrayList<Date> getAvailableDates() {
-        return availableDates;
+    public ArrayList<Date> getAvailableStartDates() {
+        return availableStartDates;
     }
 
-    public void setAvailableDates(ArrayList<Date> availableDates) {
-        this.availableDates = availableDates;
+    public void setAvailableStartDates(ArrayList<Date> availableStartDates) {
+        this.availableStartDates = availableStartDates;
+    }
+
+    public ArrayList<Date> getAvailableEndDates() {
+        return availableEndDates;
+    }
+
+    public void setAvailableEndDates(ArrayList<Date> availableEndDates) {
+        this.availableEndDates = availableEndDates;
     }
 
     public double getPricePerNight() {

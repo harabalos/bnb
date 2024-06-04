@@ -67,15 +67,19 @@ public class AccommodationServer {
 
                 // Parse the dates
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                JSONArray jsonAvailableDates = accommodationObject.getJSONArray("availableDates");
-                ArrayList<Date> availableDates = new ArrayList<>();
-                for (int j = 0; j < jsonAvailableDates.length(); j++) {
-                    try {
-                        Date date = sdf.parse(jsonAvailableDates.getString(j));
-                        availableDates.add(date);
-                    } catch (ParseException e) {
-                        System.err.println("Error parsing the date: " + e.getMessage());
-                    }
+
+                // Parse available start dates
+                JSONArray startDatesArray = accommodationObject.getJSONArray("availableStartDates");
+                ArrayList<Date> availableStartDates = new ArrayList<>();
+                for (int j = 0; j < startDatesArray.length(); j++) {
+                    availableStartDates.add(sdf.parse(startDatesArray.getString(j)));
+                }
+
+                // Parse available end dates
+                JSONArray endDatesArray = accommodationObject.getJSONArray("availableEndDates");
+                ArrayList<Date> availableEndDates = new ArrayList<>();
+                for (int j = 0; j < endDatesArray.length(); j++) {
+                    availableEndDates.add(sdf.parse(endDatesArray.getString(j)));
                 }
 
                 // Parse the bookings
@@ -85,14 +89,8 @@ public class AccommodationServer {
                     JSONObject bookingObject = jsonBookings.getJSONObject(j);
                     String bookingId = bookingObject.getString("bookingId");
                     String userId = bookingObject.getString("userId");
-                    Date startDate = null;
-                    Date endDate = null;
-                    try {
-                        startDate = sdf.parse(bookingObject.getString("startDate"));
-                        endDate = sdf.parse(bookingObject.getString("endDate"));
-                    } catch (ParseException e) {
-                        System.err.println("Error parsing the booking date: " + e.getMessage());
-                    }
+                    Date startDate = sdf.parse(bookingObject.getString("startDate"));
+                    Date endDate = sdf.parse(bookingObject.getString("endDate"));
                     Booking booking = new Booking(bookingId, userId, startDate, endDate);
                     bookings.add(booking);
                 }
@@ -102,21 +100,14 @@ public class AccommodationServer {
 
                 // Create a new Accommodation object and add it to the list
                 Accommodation accommodation = new Accommodation(
-                        name,
-                        location,
-                        capacity,
-                        availableDates,
-                        pricePerNight,
-                        rating,
-                        imagePath,
-                        bookings,
-                        managerId
+                        name, location, capacity, availableStartDates, availableEndDates,
+                        pricePerNight, rating, imagePath, bookings, managerId
                 );
                 accommodationsList.add(accommodation);
             }
         } catch (FileNotFoundException e) {
             System.err.println("The JSON file was not found, starting with an empty list.");
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             System.err.println("Error reading the JSON file: " + e.getMessage());
         }
     }
