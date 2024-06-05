@@ -17,7 +17,7 @@
         "name": "metaxakire",
         "rating": 5,
         "availableStartDates": ["2024-08-15"],
-        "location": "porosre",
+        "location": "poros",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
         "pricePerNight": 120,
@@ -58,5 +58,29 @@
         "bookings": [],
         "pricePerNight": 1234,
         "capacity": 3
+    },
+    {
+        "availableEndDates": ["2024-06-25"],
+        "imagePath": "metaxaki",
+        "name": "elare",
+        "rating": 5,
+        "availableStartDates": ["2024-06-05"],
+        "location": "elare",
+        "managerId": "0745304b-8b4a-462b-8163-6f27531438e9",
+        "bookings": [],
+        "pricePerNight": 120,
+        "capacity": 4
+    },
+    {
+        "availableEndDates": ["2024-06-26"],
+        "imagePath": "metaxaki",
+        "name": "kurie",
+        "rating": 3,
+        "availableStartDates": ["2024-06-05"],
+        "location": "eleison",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
+        "bookings": [],
+        "pricePerNight": 120,
+        "capacity": 4
     }
 ]

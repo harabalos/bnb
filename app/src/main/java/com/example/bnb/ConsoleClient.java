@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ConsoleClient {
     private String host;
@@ -209,6 +210,10 @@ public class ConsoleClient {
         return null;
     }
 
+    public List<Accommodation> getAccommodations() {
+        return accommodations;
+    }
+
     public void authenticateAsync(String username, String password, AuthenticationCallback callback) {
         new AuthenticateTask(this, callback).execute(username, password);
     }
@@ -225,9 +230,6 @@ public class ConsoleClient {
         void onAuthenticationResult(User user);
     }
 
-    public interface AccommodationCallback {
-        void onAccommodationResult(String response);
-    }
 
     public interface ViewAccommodationsCallback {
         void onViewAccommodationsResult(String response);
@@ -332,4 +334,104 @@ public class ConsoleClient {
             }
         }
     }
+    public void searchAccommodationsAsync(String location, String startDate, String endDate, int capacity, double minPrice, double maxPrice, float rating, SearchCallback callback) {
+        new SearchAccommodationsTask(this, callback).execute(location, startDate, endDate, capacity, minPrice, maxPrice, rating);
+    }
+
+    private static class SearchAccommodationsTask extends AsyncTask<Object, Void, List<Accommodation>> {
+        private WeakReference<ConsoleClient> clientRef;
+        private SearchCallback callback;
+
+        SearchAccommodationsTask(ConsoleClient client, SearchCallback callback) {
+            this.clientRef = new WeakReference<>(client);
+            this.callback = callback;
+        }
+
+        @Override
+        protected List<Accommodation> doInBackground(Object... params) {
+            String location = (String) params[0];
+            String startDate = (String) params[1];
+            String endDate = (String) params[2];
+            int capacity = (int) params[3];
+            double minPrice = (double) params[4];
+            double maxPrice = (double) params[5];
+            float rating = (float) params[6];
+
+            ConsoleClient client = clientRef.get();
+            if (client == null) {
+                return new ArrayList<>();
+            }
+
+            List<Accommodation> filteredAccommodations = new ArrayList<>();
+            for (Accommodation accommodation : client.accommodations) {
+                boolean matches = true;
+
+                if (!location.isEmpty() && !accommodation.getLocation().equalsIgnoreCase(location)) {
+                    matches = false;
+                }
+
+                if (!startDate.isEmpty() && !endDate.isEmpty()) {
+                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    try {
+                        Date start = dateFormatter.parse(startDate);
+                        Date end = dateFormatter.parse(endDate);
+                        boolean dateMatch = false;
+                        for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
+                            Date availableStart = accommodation.getAvailableStartDates().get(i);
+                            Date availableEnd = accommodation.getAvailableEndDates().get(i);
+                            if (!start.before(availableStart) && !end.after(availableEnd)) {
+                                dateMatch = true;
+                                break;
+                            }
+                        }
+                        if (!dateMatch) {
+                            matches = false;
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        matches = false;
+                    }
+                }
+
+                if (capacity != -1 && accommodation.getCapacity() < capacity) {
+                    matches = false;
+                }
+
+                if (minPrice != -1 && accommodation.getPricePerNight() < minPrice) {
+                    matches = false;
+                }
+
+                if (maxPrice != -1 && accommodation.getPricePerNight() > maxPrice) {
+                    matches = false;
+                }
+
+                if (rating != -1 && accommodation.getRating() < rating) {
+                    matches = false;
+                }
+
+                if (matches) {
+                    filteredAccommodations.add(accommodation);
+                }
+            }
+
+            return filteredAccommodations;
+        }
+
+        @Override
+        protected void onPostExecute(List<Accommodation> accommodations) {
+            if (callback != null) {
+                callback.onSearchResult(accommodations);
+            }
+        }
+    }
+
+    public interface SearchCallback {
+        void onSearchResult(List<Accommodation> accommodations);
+    }
+
+    public interface AccommodationCallback {
+        void onAccommodationResult(String response);
+    }
+
+
 }

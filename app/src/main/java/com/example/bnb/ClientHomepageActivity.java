@@ -1,24 +1,39 @@
 package com.example.bnb;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class ClientHomepageActivity extends AppCompatActivity {
+    private Button searchAccommodationsButton;
+    private Button viewBookingsButton;
+    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_client_homepage);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        searchAccommodationsButton = findViewById(R.id.searchAccommodationsButton);
+        viewBookingsButton = findViewById(R.id.viewBookingsButton);
+        logoutButton = findViewById(R.id.logoutButton);
+
+        searchAccommodationsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ClientHomepageActivity.this, SearchAccommodationActivity.class);
+            startActivity(intent);
+        });
+
+        viewBookingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ClientHomepageActivity.this, ViewBookingActivity.class);
+            startActivity(intent);
+        });
+
+        logoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ClientHomepageActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear the activity stack
+            startActivity(intent);
+            finish(); // Close the current activity
         });
     }
 }

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import java.util.Locale;
 
 public class AccommodationServer {
     // List to store all accommodations loaded from the JSON file
@@ -126,28 +127,22 @@ public class AccommodationServer {
             ObjectOutputStream output = null;
             ObjectInputStream input = null;
             try {
-                // Set up output and input streams for communication with the client
                 output = new ObjectOutputStream(socket.getOutputStream());
-                output.flush(); // Flush the stream to send the stream header
+                output.flush();
                 input = new ObjectInputStream(socket.getInputStream());
 
-                // Continuously listen for objects sent from the client
                 while (true) {
-                    Object obj = input.readObject(); // Read an object from the client
-
-                    // If the received object is an Accommodation, process it
+                    Object obj = input.readObject();
                     if (obj instanceof Accommodation) {
                         Accommodation accommodation = (Accommodation) obj;
-                        // Synchronize on the shared accommodationsList
                         synchronized (accommodationsList) {
-                            accommodationsList.add(accommodation); // Add new accommodation
-                            sendToWorker(accommodation); // Send to worker server for processing
-                            saveAccommodationsToJson(); // Save the updated list to JSON file
+                            accommodationsList.add(accommodation);
+                            sendToWorker(accommodation);
+                            saveAccommodationsToJson();
                         }
-                        // Log the received accommodation and send a confirmation to the client
                         System.out.println("Received and added accommodation: " + accommodation.getName());
                         output.writeObject("Accommodation " + accommodation.getName() + " added successfully");
-                        output.flush(); // Flush the stream to ensure the message is sent
+                        output.flush();
                     } else if (obj instanceof String) {
                         String command = (String) obj;
                         if ("view".equals(command)) {
@@ -155,17 +150,21 @@ public class AccommodationServer {
                             String response = viewAccommodations(managerId);
                             output.writeObject(response);
                             output.flush();
+                        } else if ("search".equals(command)) {
+                            String filtersString = (String) input.readObject();
+                            JSONObject filters = new JSONObject(filtersString);
+                            String response = searchAccommodations(filters);
+                            output.writeObject(response);
+                            output.flush();
                         }
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
-                // Handle exceptions related to IO and class not found
                 System.out.println("Server exception: " + ex.getMessage());
                 ex.printStackTrace();
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             } finally {
-                // In the finally block, close all resources
                 try {
                     if (input != null) input.close();
                     if (output != null) output.close();
@@ -175,6 +174,7 @@ public class AccommodationServer {
                 }
             }
         }
+
 
         // Method to send an Accommodation to a worker server based on a hash function
         private void sendToWorker(Accommodation accommodation) {
@@ -213,7 +213,6 @@ public class AccommodationServer {
             }
         }
 
-        // Method to close Closeable resources such as streams and sockets
         private void closeResource(Closeable resource) {
             if (resource != null) {
                 try {
@@ -250,5 +249,80 @@ public class AccommodationServer {
             }
             return accommodationsArray.toString(4);
         }
+
+        private String searchAccommodations(JSONObject filters) throws JSONException {
+            List<Accommodation> filteredAccommodations = new ArrayList<>();
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date startDate = null;
+            Date endDate = null;
+
+            String location = filters.optString("location", null);
+            String startDateStr = filters.optString("startDate", null);
+            String endDateStr = filters.optString("endDate", null);
+            int capacity = filters.optInt("capacity", -1);
+            double minPrice = filters.optDouble("minPrice", -1);
+            double maxPrice = filters.optDouble("maxPrice", -1);
+            float rating = (float) filters.optDouble("rating", -1);
+
+            try {
+                if (startDateStr != null && !startDateStr.isEmpty()) {
+                    startDate = dateFormatter.parse(startDateStr);
+                }
+                if (endDateStr != null && !endDateStr.isEmpty()) {
+                    endDate = dateFormatter.parse(endDateStr);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            synchronized (accommodationsList) {
+                for (Accommodation accommodation : accommodationsList) {
+                    boolean matches = true;
+
+                    if (location != null && !location.isEmpty() && !accommodation.getLocation().equalsIgnoreCase(location)) {
+                        matches = false;
+                    }
+                    if (capacity != -1 && accommodation.getCapacity() < capacity) {
+                        matches = false;
+                    }
+                    if (minPrice != -1 && accommodation.getPricePerNight() < minPrice) {
+                        matches = false;
+                    }
+                    if (maxPrice != -1 && accommodation.getPricePerNight() > maxPrice) {
+                        matches = false;
+                    }
+                    if (rating != -1 && accommodation.getRating() < rating) {
+                        matches = false;
+                    }
+                    if (startDate != null && endDate != null) {
+                        boolean dateMatch = false;
+                        for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
+                            Date availableStartDate = accommodation.getAvailableStartDates().get(i);
+                            Date availableEndDate = accommodation.getAvailableEndDates().get(i);
+                            if ((startDate.compareTo(availableStartDate) >= 0 && startDate.compareTo(availableEndDate) <= 0) &&
+                                    (endDate.compareTo(availableStartDate) >= 0 && endDate.compareTo(availableEndDate) <= 0)) {
+                                dateMatch = true;
+                                break;
+                            }
+                        }
+                        if (!dateMatch) {
+                            matches = false;
+                        }
+                    }
+
+                    if (matches) {
+                        filteredAccommodations.add(accommodation);
+                    }
+                }
+            }
+
+            JSONArray resultArray = new JSONArray();
+            for (Accommodation accommodation : filteredAccommodations) {
+                resultArray.put(accommodation.toJSON());
+            }
+            return resultArray.toString();
+        }
+
     }
 }
+
