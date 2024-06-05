@@ -3,6 +3,7 @@ package com.example.bnb;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,8 +21,10 @@ public class AccommodationDetailActivity extends AppCompatActivity {
     private TextView availableDatesTextView;
     private ImageView accommodationImageView;
     private Button goBackButton;
+    private Button bookButton;
     private Accommodation accommodation;
     private SimpleDateFormat dateFormatter;
+    private boolean isManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +39,23 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         availableDatesTextView = findViewById(R.id.availableDatesTextView);
         accommodationImageView = findViewById(R.id.accommodationImageView);
         goBackButton = findViewById(R.id.goBackButton);
+        bookButton = findViewById(R.id.bookButton);
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
         Intent intent = getIntent();
         accommodation = (Accommodation) intent.getSerializableExtra("accommodation");
+        isManager = intent.getBooleanExtra("isManager", false);
 
         populateDetails();
 
         goBackButton.setOnClickListener(v -> finish());
+
+        if (!isManager) {
+            bookButton.setVisibility(View.VISIBLE);
+            bookButton.setOnClickListener(v -> {
+                // Implement booking logic here
+            });
+        }
     }
 
     private void populateDetails() {

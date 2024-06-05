@@ -60,6 +60,14 @@
             android:layout_marginTop="8dp" />
 
         <Button
+            android:id="@+id/bookButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Book"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/goBackButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
