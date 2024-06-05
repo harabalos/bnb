@@ -1,14 +1,19 @@
 // src/main/java/com/example/bnb/AccommodationDetailActivity.java
 package com.example.bnb;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class AccommodationDetailActivity extends AppCompatActivity {
@@ -25,6 +30,8 @@ public class AccommodationDetailActivity extends AppCompatActivity {
     private Accommodation accommodation;
     private SimpleDateFormat dateFormatter;
     private boolean isManager;
+    private Date startDate;
+    private Date endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +59,7 @@ public class AccommodationDetailActivity extends AppCompatActivity {
 
         if (!isManager) {
             bookButton.setVisibility(View.VISIBLE);
-            bookButton.setOnClickListener(v -> {
-                // Implement booking logic here
-            });
+            bookButton.setOnClickListener(v -> showStartDatePicker());
         }
     }
 
@@ -77,5 +82,67 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         // Load image from drawable
         int imageResource = getResources().getIdentifier(accommodation.getImagePath(), "drawable", getPackageName());
         accommodationImageView.setImageResource(imageResource);
+    }
+
+    private void showStartDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog startDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            calendar.set(year, month, dayOfMonth);
+            startDate = calendar.getTime();
+            showEndDatePicker();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        startDatePicker.show();
+    }
+
+    private void showEndDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog endDatePicker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            calendar.set(year, month, dayOfMonth);
+            endDate = calendar.getTime();
+            if (validateBookingDates()) {
+                bookAccommodation();
+            } else {
+                Toast.makeText(this, "Selected dates are not available", Toast.LENGTH_SHORT).show();
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        endDatePicker.show();
+    }
+
+    private boolean validateBookingDates() {
+        for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
+            Date availableStart = accommodation.getAvailableStartDates().get(i);
+            Date availableEnd = accommodation.getAvailableEndDates().get(i);
+            if ((startDate.compareTo(availableStart) >= 0 && endDate.compareTo(availableEnd) <= 0)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void bookAccommodation() {
+        // Update the available dates in the accommodation
+        for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
+            Date availableStart = accommodation.getAvailableStartDates().get(i);
+            Date availableEnd = accommodation.getAvailableEndDates().get(i);
+            if (startDate.compareTo(availableStart) >= 0 && endDate.compareTo(availableEnd) <= 0) {
+                accommodation.getAvailableStartDates().remove(i);
+                accommodation.getAvailableEndDates().remove(i);
+                if (startDate.compareTo(availableStart) > 0) {
+                    accommodation.getAvailableStartDates().add(availableStart);
+                    accommodation.getAvailableEndDates().add(startDate);
+                }
+                if (endDate.compareTo(availableEnd) < 0) {
+                    accommodation.getAvailableStartDates().add(endDate);
+                    accommodation.getAvailableEndDates().add(availableEnd);
+                }
+                break;
+            }
+        }
+        // Save the updated accommodation back to the server
+        ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
+        consoleClient.updateAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
+            Toast.makeText(this, "Booking successful", Toast.LENGTH_SHORT).show();
+            finish();
+        }));
     }
 }

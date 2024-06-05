@@ -51,3 +51,9 @@ public class Booking implements Serializable {
         this.endDate = endDate;
     }
 }
+//Ta bookings stis imeromines na benoun kala sta json kai na ginetai update sto view
+//Otan kaneis booking na ftiaxnete to object kai na benei mesa sto json
+//Otan kaneis booking na emfanizontai sto viewbookings tou kathena san view
+//Na borei na afisei asteri kai to asteri na ginetai mo kai na benei sto json
+//Otan peftei enas worker na ton swzei allos
+//Na ftiaxw tin mapreduce swsta

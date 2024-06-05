@@ -1,10 +1,14 @@
 [
     {
-        "availableEndDates": ["2024-06-26"],
+        "availableEndDates": [
+            "2024-06-20"
+        ],
         "imagePath": "metaxaki",
         "name": "metaxaki",
         "rating": 5,
-        "availableStartDates": ["2024-06-19"],
+        "availableStartDates": [
+            "2024-06-19"
+        ],
         "location": "poros",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],

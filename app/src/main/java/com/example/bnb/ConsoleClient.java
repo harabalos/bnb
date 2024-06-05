@@ -433,5 +433,48 @@ public class ConsoleClient {
         void onAccommodationResult(String response);
     }
 
+    public void updateAccommodationAsync(Accommodation accommodation, AccommodationCallback callback) {
+        new UpdateAccommodationTask(this, callback).execute(accommodation);
+    }
+
+    private static class UpdateAccommodationTask extends AsyncTask<Accommodation, Void, String> {
+        private WeakReference<ConsoleClient> clientRef;
+        private AccommodationCallback callback;
+
+        UpdateAccommodationTask(ConsoleClient client, AccommodationCallback callback) {
+            this.clientRef = new WeakReference<>(client);
+            this.callback = callback;
+        }
+
+        @Override
+        protected String doInBackground(Accommodation... params) {
+            Accommodation accommodation = params[0];
+            ConsoleClient client = clientRef.get();
+            if (client == null) {
+                return null;
+            }
+
+            try (Socket socket = new Socket(client.host, client.port);
+                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
+                out.writeObject("update");
+                out.writeObject(accommodation);
+                return (String) in.readObject();
+            } catch (Exception e) {
+                Log.e("ConsoleClient", "Error updating accommodation", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            if (callback != null) {
+                callback.onAccommodationResult(response);
+            }
+        }
+    }
+
+
 
 }

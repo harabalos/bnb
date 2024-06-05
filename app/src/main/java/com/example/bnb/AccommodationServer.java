@@ -156,7 +156,12 @@ public class AccommodationServer {
                             String response = searchAccommodations(filters);
                             output.writeObject(response);
                             output.flush();
-                        }
+                        } else if ("update".equals(command)) {
+                        Accommodation accommodation = (Accommodation) input.readObject();
+                        updateAccommodation(accommodation);
+                        output.writeObject("Accommodation updated successfully");
+                        output.flush();
+                    }
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
@@ -174,6 +179,24 @@ public class AccommodationServer {
                 }
             }
         }
+
+        private void updateAccommodation(Accommodation accommodation) {
+            synchronized (accommodationsList) {
+                for (int i = 0; i < accommodationsList.size(); i++) {
+                    if (accommodationsList.get(i).getName().equals(accommodation.getName())) {
+                        accommodationsList.set(i, accommodation);
+                        break;
+                    }
+                }
+                try {
+                    saveAccommodationsToJson();
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+
 
 
         // Method to send an Accommodation to a worker server based on a hash function
