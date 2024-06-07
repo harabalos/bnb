@@ -1,12 +1,15 @@
 // src/main/java/com/example/bnb/AccommodationDetailActivity.java
 package com.example.bnb;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,11 +32,14 @@ public class AccommodationDetailActivity extends AppCompatActivity {
     private ImageView accommodationImageView;
     private Button goBackButton;
     private Button bookButton;
+    private Button reviewButton;
     private Accommodation accommodation;
     private SimpleDateFormat dateFormatter;
     private boolean isManager;
+    private boolean isFromBookings;
     private Date startDate;
     private Date endDate;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,21 +55,69 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         accommodationImageView = findViewById(R.id.accommodationImageView);
         goBackButton = findViewById(R.id.goBackButton);
         bookButton = findViewById(R.id.bookButton);
+        reviewButton = findViewById(R.id.reviewButton);
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
         Intent intent = getIntent();
         accommodation = (Accommodation) intent.getSerializableExtra("accommodation");
         isManager = intent.getBooleanExtra("isManager", false);
+        isFromBookings = intent.getBooleanExtra("isFromBookings", false);
+        userId = intent.getStringExtra("id");
 
         populateDetails();
 
         goBackButton.setOnClickListener(v -> finish());
 
-        if (!isManager) {
+        if (isManager) {
+            bookButton.setVisibility(View.GONE);
+            reviewButton.setVisibility(View.GONE);
+        } else if (isFromBookings) {
+            bookButton.setVisibility(View.GONE);
+            reviewButton.setVisibility(View.VISIBLE);
+            reviewButton.setOnClickListener(v -> showReviewDialog());
+        } else {
             bookButton.setVisibility(View.VISIBLE);
+            reviewButton.setVisibility(View.GONE);
             bookButton.setOnClickListener(v -> showStartDatePicker());
         }
     }
+
+    private void showReviewDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Review Accommodation");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+        builder.setPositiveButton("Submit", (dialog, which) -> {
+            int rating = Integer.parseInt(input.getText().toString());
+            if (rating < 1 || rating > 5) {
+                Toast.makeText(this, "Please enter a rating between 1 and 5", Toast.LENGTH_SHORT).show();
+            } else {
+                updateRating(rating);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void submitReview(int rating) {
+        int currentNumberOfReviews = accommodation.getNumberOfReviews();
+        float currentRating = accommodation.getRating();
+
+        float newRating = (currentRating * currentNumberOfReviews + rating) / (currentNumberOfReviews + 1);
+        accommodation.setRating(newRating);
+        accommodation.setNumberOfReviews(currentNumberOfReviews + 1);
+
+        ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
+        consoleClient.updateAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
+            Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
+            finish();
+        }));
+    }
+
 
     private void populateDetails() {
         nameTextView.setText(accommodation.getName());
@@ -151,6 +205,23 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.updateAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
             Toast.makeText(this, "Booking successful", Toast.LENGTH_SHORT).show();
+            finish();
+        }));
+    }
+
+    private void updateRating(int newRating) {
+        int totalReviews = accommodation.getNumberOfReviews();
+        float currentRating = accommodation.getRating();
+
+        // Calculate new average rating
+        float updatedRating = ((currentRating * totalReviews) + newRating) / (totalReviews + 1);
+
+        accommodation.setRating(updatedRating);
+        accommodation.setNumberOfReviews(totalReviews + 1);
+
+        ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
+        consoleClient.updateAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
+            Toast.makeText(this, "Review submitted", Toast.LENGTH_SHORT).show();
             finish();
         }));
     }

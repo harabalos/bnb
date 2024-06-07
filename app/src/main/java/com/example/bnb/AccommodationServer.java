@@ -65,6 +65,7 @@ public class AccommodationServer {
                 double pricePerNight = accommodationObject.getDouble("pricePerNight");
                 float rating = (float) accommodationObject.getDouble("rating");
                 String imagePath = accommodationObject.getString("imagePath");
+                int numberOfReviews = accommodationObject.optInt("numberOfReviews", 0);
 
                 // Parse the dates
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -102,7 +103,7 @@ public class AccommodationServer {
                 // Create a new Accommodation object and add it to the list
                 Accommodation accommodation = new Accommodation(
                         name, location, capacity, availableStartDates, availableEndDates,
-                        pricePerNight, rating, imagePath, bookings, managerId
+                        pricePerNight, rating, imagePath, bookings, managerId,numberOfReviews
                 );
                 accommodationsList.add(accommodation);
             }

@@ -80,8 +80,7 @@ public class Booking implements Serializable {
         }
     }
 }
-//Otan kaneis booking na ftiaxnete to object kai na benei mesa sto json
-//Otan kaneis booking na emfanizontai sto viewbookings tou kathena san view
+
 //Na borei na afisei asteri kai to asteri na ginetai mo kai na benei sto json
 //Otan peftei enas worker na ton swzei allos
 //Na ftiaxw tin mapreduce swsta

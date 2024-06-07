@@ -67,6 +67,7 @@ public class ViewBookingActivity extends AppCompatActivity {
                     Intent intent = new Intent(ViewBookingActivity.this, AccommodationDetailActivity.class);
                     intent.putExtra("accommodation", accommodation);
                     intent.putExtra("id", userId);
+                    intent.putExtra("isFromBookings", true);
                     startActivity(intent);
                 });
 

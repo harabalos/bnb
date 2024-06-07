@@ -24,9 +24,10 @@ public class Accommodation implements Serializable {
     private String imagePath;
     private ArrayList<Booking> bookings;
     private String managerId;
+    private int numberOfReviews;
 
     public Accommodation(String name, String location, int capacity,ArrayList<Date> availableStartDates, ArrayList<Date> availableEndDates,
-                         double pricePerNight, float rating, String imagePath, ArrayList<Booking> bookings, String managerId) {
+                         double pricePerNight, float rating, String imagePath, ArrayList<Booking> bookings, String managerId,int numberOfReviews) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
@@ -37,6 +38,7 @@ public class Accommodation implements Serializable {
         this.imagePath = imagePath;
         this.bookings = bookings;
         this.managerId = managerId;
+        this.numberOfReviews = numberOfReviews;
     }
 
 
@@ -52,6 +54,7 @@ public class Accommodation implements Serializable {
         jsonObj.put("pricePerNight", this.pricePerNight);
         jsonObj.put("rating", this.rating);
         jsonObj.put("imagePath", this.imagePath);
+        jsonObj.put("numberOfReviews", this.numberOfReviews);
 
         JSONArray startDatesArray = new JSONArray();
         for (Date date : this.availableStartDates) {
@@ -67,7 +70,7 @@ public class Accommodation implements Serializable {
 
         JSONArray bookingsArray = new JSONArray();
         for (Booking booking : this.bookings) {
-            bookingsArray.put(booking.toJSON());  // Use booking.toJSON() method
+            bookingsArray.put(booking.toJSON());
         }
         jsonObj.put("bookings", bookingsArray);
         jsonObj.put("managerId", this.managerId);
@@ -83,6 +86,7 @@ public class Accommodation implements Serializable {
         accommodation.pricePerNight = jsonObject.getDouble("pricePerNight");
         accommodation.rating = (float) jsonObject.getDouble("rating");
         accommodation.imagePath = jsonObject.getString("imagePath");
+        accommodation.numberOfReviews = jsonObject.getInt("numberOfReviews");
 
         JSONArray startDatesArray = jsonObject.getJSONArray("availableStartDates");
         JSONArray endDatesArray = jsonObject.getJSONArray("availableEndDates");
@@ -102,7 +106,7 @@ public class Accommodation implements Serializable {
         accommodation.bookings = new ArrayList<>();
         for (int i = 0; i < bookingsArray.length(); i++) {
             JSONObject bookingObj = bookingsArray.getJSONObject(i);
-            Booking booking = Booking.fromJson(bookingObj);  // Use Booking.fromJson() method
+            Booking booking = Booking.fromJson(bookingObj);
             accommodation.bookings.add(booking);
         }
 
@@ -182,6 +186,14 @@ public class Accommodation implements Serializable {
     }
 
     public ArrayList<Booking> getBookings(){return this.bookings;}
+
+    public int getNumberOfReviews() {
+        return numberOfReviews;
+    }
+
+    public void setNumberOfReviews(int numberOfReviews) {
+        this.numberOfReviews = numberOfReviews;
+    }
 
 
 }

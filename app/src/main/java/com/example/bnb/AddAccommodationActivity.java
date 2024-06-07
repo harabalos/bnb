@@ -154,7 +154,7 @@ public class AddAccommodationActivity extends AppCompatActivity {
         availableStartDates.add(startDate);
         availableEndDates.add(endDate);
 
-        Accommodation accommodation = new Accommodation(name, location, capacity, availableStartDates, availableEndDates, pricePerNight, rating, imagePath, new ArrayList<>(), managerId);
+        Accommodation accommodation = new Accommodation(name, location, capacity, availableStartDates, availableEndDates, pricePerNight, rating, imagePath, new ArrayList<>(), managerId,1);
 
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.addAccommodationAsync(accommodation, response -> runOnUiThread(() -> {

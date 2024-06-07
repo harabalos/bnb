@@ -1,15 +1,16 @@
 [
     {
         "availableEndDates": [
-            "2024-07-11",
-            "2024-07-20"
+            "2024-06-15",
+            "2024-06-25"
         ],
         "imagePath": "seaside_villa",
+        "numberOfReviews": 0,
         "name": "Seaside Villa",
-        "rating": 5,
+        "rating": 1,
         "availableStartDates": [
-            "2024-07-10",
-            "2024-07-15"
+            "2024-06-10",
+            "2024-06-20"
         ],
         "location": "Santorini",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
@@ -19,15 +20,16 @@
     },
     {
         "availableEndDates": [
-            "2024-09-25",
-            "2024-10-30"
+            "2024-06-20",
+            "2024-06-30"
         ],
         "imagePath": "mountain_retreat",
+        "numberOfReviews": 0,
         "name": "Mountain Retreat",
-        "rating": 4,
+        "rating": 1,
         "availableStartDates": [
-            "2024-09-20",
-            "2024-10-20"
+            "2024-06-15",
+            "2024-06-25"
         ],
         "location": "Aspen",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
@@ -37,17 +39,16 @@
     },
     {
         "availableEndDates": [
-            "2024-06-26",
-            "2024-06-13",
-            "2024-06-15"
+            "2024-06-10",
+            "2024-06-20"
         ],
         "imagePath": "urban_flat",
+        "numberOfReviews": 0,
         "name": "Urban Flat",
-        "rating": 4,
+        "rating": 1,
         "availableStartDates": [
-            "2024-06-20",
-            "2024-06-12",
-            "2024-06-14"
+            "2024-06-05",
+            "2024-06-15"
         ],
         "location": "New York",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
@@ -57,17 +58,16 @@
     },
     {
         "availableEndDates": [
-            "2024-06-19",
-            "2024-06-05",
-            "2024-06-10"
+            "2024-06-25",
+            "2024-06-30"
         ],
         "imagePath": "beach_bungalow",
+        "numberOfReviews": 0,
         "name": "Beach Bungalow",
-        "rating": 5,
+        "rating": 1,
         "availableStartDates": [
             "2024-06-15",
-            "2024-06-04",
-            "2024-06-09"
+            "2024-06-20"
         ],
         "location": "Malibu",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
@@ -78,13 +78,14 @@
     {
         "availableEndDates": [
             "2024-06-10",
-            "2024-06-26"
+            "2024-06-20"
         ],
         "imagePath": "countryside_cottage",
+        "numberOfReviews": 0,
         "name": "Countryside Cottage",
-        "rating": 4,
+        "rating": 1,
         "availableStartDates": [
-            "2024-06-06",
+            "2024-06-05",
             "2024-06-15"
         ],
         "location": "Cotswolds",
@@ -96,16 +97,15 @@
     {
         "availableEndDates": [
             "2024-06-25",
-            "2024-06-07",
-            "2024-06-10"
+            "2024-06-30"
         ],
         "imagePath": "lake_house",
+        "numberOfReviews": 0,
         "name": "Lake House",
-        "rating": 5,
+        "rating": 1,
         "availableStartDates": [
             "2024-06-15",
-            "2024-06-05",
-            "2024-06-09"
+            "2024-06-20"
         ],
         "location": "Tahoe",
         "managerId": "0745304b-8b4a-462b-8163-6f27531438e9",
@@ -115,25 +115,26 @@
     },
     {
         "availableEndDates": [
-            "2024-06-26",
-            "2024-06-06",
-            "2024-06-12"
+            "2024-06-30",
+            "2024-06-11",
+            "2024-06-20"
         ],
         "imagePath": "forest_cabin",
+        "numberOfReviews": 3,
         "name": "Forest Cabin",
         "rating": 3,
         "availableStartDates": [
-            "2024-06-13",
-            "2024-06-05",
-            "2024-06-07"
+            "2024-06-15",
+            "2024-06-10",
+            "2024-06-14"
         ],
         "location": "Yosemite",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [{
-            "endDate": "2024-06-07",
+            "endDate": "2024-06-14",
             "userId": "1b0cd890-99f9-45e0-b2bf-6c4431b5ad8f",
-            "bookingId": "05f97600-26d7-44de-bd2f-cc849256edc3",
-            "startDate": "2024-06-06"
+            "bookingId": "23e87586-4855-4acc-b86f-4c5ec7721688",
+            "startDate": "2024-06-11"
         }],
         "pricePerNight": 180,
         "capacity": 4
