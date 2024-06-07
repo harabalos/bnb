@@ -67,19 +67,13 @@ public class Accommodation implements Serializable {
 
         JSONArray bookingsArray = new JSONArray();
         for (Booking booking : this.bookings) {
-            JSONObject bookingObj = new JSONObject();
-            bookingObj.put("bookingId", booking.getBookingId());
-            bookingObj.put("userId", booking.getUserId());
-            bookingObj.put("startDate", sdf.format(booking.getStartDate()));
-            bookingObj.put("endDate", sdf.format(booking.getEndDate()));
-            bookingsArray.put(bookingObj);
+            bookingsArray.put(booking.toJSON());  // Use booking.toJSON() method
         }
         jsonObj.put("bookings", bookingsArray);
         jsonObj.put("managerId", this.managerId);
 
         return jsonObj;
     }
-
 
     public static Accommodation fromJson(JSONObject jsonObject) throws JSONException {
         Accommodation accommodation = new Accommodation();
@@ -108,17 +102,7 @@ public class Accommodation implements Serializable {
         accommodation.bookings = new ArrayList<>();
         for (int i = 0; i < bookingsArray.length(); i++) {
             JSONObject bookingObj = bookingsArray.getJSONObject(i);
-            String bookingId = bookingObj.getString("bookingId");
-            String userId = bookingObj.getString("userId");
-            Date startDate = null;
-            Date endDate = null;
-            try {
-                startDate = dateFormat.parse(bookingObj.getString("startDate"));
-                endDate = dateFormat.parse(bookingObj.getString("endDate"));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            Booking booking = new Booking(bookingId, userId, startDate, endDate);
+            Booking booking = Booking.fromJson(bookingObj);  // Use Booking.fromJson() method
             accommodation.bookings.add(booking);
         }
 

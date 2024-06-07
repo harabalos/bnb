@@ -1,6 +1,11 @@
 package com.example.bnb;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Booking implements Serializable {
@@ -50,8 +55,31 @@ public class Booking implements Serializable {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
+
+    public JSONObject toJSON() throws JSONException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("bookingId", this.bookingId);
+        jsonObj.put("userId", this.userId);
+        jsonObj.put("startDate", sdf.format(this.startDate));
+        jsonObj.put("endDate", sdf.format(this.endDate));
+        return jsonObj;
+    }
+
+    public static Booking fromJson(JSONObject jsonObject) throws JSONException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            String bookingId = jsonObject.getString("bookingId");
+            String userId = jsonObject.getString("userId");
+            Date startDate = sdf.parse(jsonObject.getString("startDate"));
+            Date endDate = sdf.parse(jsonObject.getString("endDate"));
+            return new Booking(bookingId, userId, startDate, endDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
-//Ta bookings stis imeromines na benoun kala sta json kai na ginetai update sto view
 //Otan kaneis booking na ftiaxnete to object kai na benei mesa sto json
 //Otan kaneis booking na emfanizontai sto viewbookings tou kathena san view
 //Na borei na afisei asteri kai to asteri na ginetai mo kai na benei sto json

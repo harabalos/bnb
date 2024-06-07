@@ -70,6 +70,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private void displayAccommodations(JSONArray accommodations) {
         try {
+            String userId = getIntent().getStringExtra("id");
             for (int i = 0; i < accommodations.length(); i++) {
                 JSONObject accommodationJson = accommodations.getJSONObject(i);
                 Accommodation accommodation = Accommodation.fromJson(accommodationJson);
@@ -79,6 +80,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 accommodationButton.setOnClickListener(v -> {
                     Intent intent = new Intent(SearchResultsActivity.this, AccommodationDetailActivity.class);
                     intent.putExtra("accommodation", accommodation);
+                    intent.putExtra("id", userId);
                     startActivity(intent);
                 });
 

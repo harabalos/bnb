@@ -90,10 +90,12 @@ public class SearchAccommodationActivity extends AppCompatActivity {
             if (rating >= 0) {
                 filters.put("rating", rating);
             }
+            String userId = getIntent().getStringExtra("id");
 
             Intent intent = new Intent(SearchAccommodationActivity.this, SearchResultsActivity.class);
             intent.putExtra("filters", filters.toString());
             intent.putExtra("noFilters", false);
+            intent.putExtra("id", userId);
             startActivity(intent);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -101,8 +103,10 @@ public class SearchAccommodationActivity extends AppCompatActivity {
     }
 
     private void performSearchWithNoFilters() {
+        String userId = getIntent().getStringExtra("id");
         Intent intent = new Intent(SearchAccommodationActivity.this, SearchResultsActivity.class);
         intent.putExtra("noFilters", true);
+        intent.putExtra("id", userId);
         startActivity(intent);
     }
 }

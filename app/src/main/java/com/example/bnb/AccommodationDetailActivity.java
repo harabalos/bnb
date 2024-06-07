@@ -3,6 +3,7 @@ package com.example.bnb;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 public class AccommodationDetailActivity extends AppCompatActivity {
 
@@ -120,6 +122,8 @@ public class AccommodationDetailActivity extends AppCompatActivity {
     }
 
     private void bookAccommodation() {
+        String userId = getIntent().getStringExtra("id");
+
         // Update the available dates in the accommodation
         for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
             Date availableStart = accommodation.getAvailableStartDates().get(i);
@@ -138,7 +142,12 @@ public class AccommodationDetailActivity extends AppCompatActivity {
                 break;
             }
         }
-        // Save the updated accommodation back to the server
+
+        // Create a new booking
+        String bookingId = UUID.randomUUID().toString();
+        Booking booking = new Booking(bookingId, userId, startDate, endDate);
+        accommodation.getBookings().add(booking);
+
         ConsoleClient consoleClient = new ConsoleClient("192.168.0.6", 4321, this);
         consoleClient.updateAccommodationAsync(accommodation, response -> runOnUiThread(() -> {
             Toast.makeText(this, "Booking successful", Toast.LENGTH_SHORT).show();

@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(this, ClientHomepageActivity.class);
+                    intent.putExtra("id", user.getId());
                     startActivity(intent);
                 }
                 finish();

@@ -1,90 +1,141 @@
 [
     {
         "availableEndDates": [
-            "2024-06-20"
+            "2024-07-11",
+            "2024-07-20"
         ],
-        "imagePath": "metaxaki",
-        "name": "metaxaki",
+        "imagePath": "seaside_villa",
+        "name": "Seaside Villa",
         "rating": 5,
         "availableStartDates": [
-            "2024-06-19"
+            "2024-07-10",
+            "2024-07-15"
         ],
-        "location": "poros",
+        "location": "Santorini",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
-        "pricePerNight": 120,
-        "capacity": 4
+        "pricePerNight": 250,
+        "capacity": 6
     },
     {
-        "availableEndDates": ["2024-10-18"],
-        "imagePath": "okokahahah",
-        "name": "metaxakire",
-        "rating": 5,
-        "availableStartDates": ["2024-08-15"],
-        "location": "poros",
-        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
-        "bookings": [],
-        "pricePerNight": 120,
-        "capacity": 4
-    },
-    {
-        "availableEndDates": ["2024-06-26"],
-        "imagePath": "sdg",
-        "name": "ok",
+        "availableEndDates": [
+            "2024-09-25",
+            "2024-10-30"
+        ],
+        "imagePath": "mountain_retreat",
+        "name": "Mountain Retreat",
         "rating": 4,
-        "availableStartDates": ["2024-06-12"],
-        "location": "ok",
+        "availableStartDates": [
+            "2024-09-20",
+            "2024-10-20"
+        ],
+        "location": "Aspen",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
-        "pricePerNight": 4,
-        "capacity": 4
+        "pricePerNight": 300,
+        "capacity": 8
     },
     {
-        "availableEndDates": ["2024-06-19"],
-        "imagePath": "hahaokre",
-        "name": "naireok",
-        "rating": 5,
-        "availableStartDates": ["2024-06-04"],
-        "location": "naireok",
-        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
-        "bookings": [],
-        "pricePerNight": 120,
-        "capacity": 4
-    },
-    {
-        "availableEndDates": ["2024-06-26"],
-        "imagePath": "oopshaah",
-        "name": "BABAIS",
+        "availableEndDates": [
+            "2024-06-26",
+            "2024-06-13",
+            "2024-06-15"
+        ],
+        "imagePath": "urban_flat",
+        "name": "Urban Flat",
         "rating": 4,
-        "availableStartDates": ["2024-06-06"],
-        "location": "BBABAIS",
+        "availableStartDates": [
+            "2024-06-20",
+            "2024-06-12",
+            "2024-06-14"
+        ],
+        "location": "New York",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
         "bookings": [],
-        "pricePerNight": 1234,
-        "capacity": 3
+        "pricePerNight": 150,
+        "capacity": 2
     },
     {
-        "availableEndDates": ["2024-06-25"],
-        "imagePath": "metaxaki",
-        "name": "elare",
+        "availableEndDates": [
+            "2024-06-19",
+            "2024-06-05",
+            "2024-06-10"
+        ],
+        "imagePath": "beach_bungalow",
+        "name": "Beach Bungalow",
         "rating": 5,
-        "availableStartDates": ["2024-06-05"],
-        "location": "elare",
+        "availableStartDates": [
+            "2024-06-15",
+            "2024-06-04",
+            "2024-06-09"
+        ],
+        "location": "Malibu",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
+        "bookings": [],
+        "pricePerNight": 400,
+        "capacity": 4
+    },
+    {
+        "availableEndDates": [
+            "2024-06-10",
+            "2024-06-26"
+        ],
+        "imagePath": "countryside_cottage",
+        "name": "Countryside Cottage",
+        "rating": 4,
+        "availableStartDates": [
+            "2024-06-06",
+            "2024-06-15"
+        ],
+        "location": "Cotswolds",
+        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
+        "bookings": [],
+        "pricePerNight": 200,
+        "capacity": 5
+    },
+    {
+        "availableEndDates": [
+            "2024-06-25",
+            "2024-06-07",
+            "2024-06-10"
+        ],
+        "imagePath": "lake_house",
+        "name": "Lake House",
+        "rating": 5,
+        "availableStartDates": [
+            "2024-06-15",
+            "2024-06-05",
+            "2024-06-09"
+        ],
+        "location": "Tahoe",
         "managerId": "0745304b-8b4a-462b-8163-6f27531438e9",
         "bookings": [],
-        "pricePerNight": 120,
-        "capacity": 4
+        "pricePerNight": 350,
+        "capacity": 6
     },
     {
-        "availableEndDates": ["2024-06-26"],
-        "imagePath": "metaxaki",
-        "name": "kurie",
+        "availableEndDates": [
+            "2024-06-26",
+            "2024-06-06",
+            "2024-06-12"
+        ],
+        "imagePath": "forest_cabin",
+        "name": "Forest Cabin",
         "rating": 3,
-        "availableStartDates": ["2024-06-05"],
-        "location": "eleison",
+        "availableStartDates": [
+            "2024-06-13",
+            "2024-06-05",
+            "2024-06-07"
+        ],
+        "location": "Yosemite",
         "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
-        "bookings": [],
-        "pricePerNight": 120,
+        "bookings": [{
+            "endDate": "2024-06-07",
+            "userId": "1b0cd890-99f9-45e0-b2bf-6c4431b5ad8f",
+            "bookingId": "05f97600-26d7-44de-bd2f-cc849256edc3",
+            "startDate": "2024-06-06"
+        }],
+        "pricePerNight": 180,
         "capacity": 4
     }
 ]

@@ -18,14 +18,17 @@ public class ClientHomepageActivity extends AppCompatActivity {
         searchAccommodationsButton = findViewById(R.id.searchAccommodationsButton);
         viewBookingsButton = findViewById(R.id.viewBookingsButton);
         logoutButton = findViewById(R.id.logoutButton);
+        String userId = getIntent().getStringExtra("id");
 
         searchAccommodationsButton.setOnClickListener(v -> {
             Intent intent = new Intent(ClientHomepageActivity.this, SearchAccommodationActivity.class);
+            intent.putExtra("id", userId);
             startActivity(intent);
         });
 
         viewBookingsButton.setOnClickListener(v -> {
             Intent intent = new Intent(ClientHomepageActivity.this, ViewBookingActivity.class);
+            intent.putExtra("id", userId);
             startActivity(intent);
         });
 
