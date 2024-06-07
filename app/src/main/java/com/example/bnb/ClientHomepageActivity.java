@@ -36,7 +36,7 @@ public class ClientHomepageActivity extends AppCompatActivity {
             Intent intent = new Intent(ClientHomepageActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear the activity stack
             startActivity(intent);
-            finish(); // Close the current activity
+            finish();
         });
     }
 }

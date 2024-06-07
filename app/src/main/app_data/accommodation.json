@@ -138,31 +138,5 @@
         }],
         "pricePerNight": 180,
         "capacity": 4
-    },
-    {
-        "availableEndDates": ["2024-06-28"],
-        "imagePath": "qwer",
-        "numberOfReviews": 1,
-        "name": "yes",
-        "rating": 4,
-        "availableStartDates": ["2024-06-07"],
-        "location": "qwer",
-        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
-        "bookings": [],
-        "pricePerNight": 123,
-        "capacity": 4
-    },
-    {
-        "availableEndDates": ["2024-06-28"],
-        "imagePath": "qwer",
-        "numberOfReviews": 1,
-        "name": "qwer",
-        "rating": 2,
-        "availableStartDates": ["2024-06-04"],
-        "location": "qwer",
-        "managerId": "658346fe-6cbf-4311-8085-97ee9401f875",
-        "bookings": [],
-        "pricePerNight": 2134,
-        "capacity": 3
     }
 ]

@@ -8,9 +8,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-// Accommodation class to model the data and behavior of an accommodation entity
 public class Accommodation implements Serializable {
-    // serialVersionUID is used to ensure that a loaded class corresponds exactly to a serialized object
     private static final long serialVersionUID = 1L;
 
 

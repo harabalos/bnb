@@ -1,4 +1,3 @@
-// src/main/java/com/example/bnb/AccommodationDetailActivity.java
 package com.example.bnb;
 
 import android.app.AlertDialog;
@@ -135,7 +134,6 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         }
         availableDatesTextView.setText("Available Dates: \n" + dates.toString());
 
-        // Load image from drawable
         int imageResource = getResources().getIdentifier(accommodation.getImagePath(), "drawable", getPackageName());
         accommodationImageView.setImageResource(imageResource);
     }
@@ -178,7 +176,7 @@ public class AccommodationDetailActivity extends AppCompatActivity {
     private void bookAccommodation() { //book function as described in the description
         String userId = getIntent().getStringExtra("id");
 
-        // Update the available dates in the accommodation
+        //update the available dates in the accommodation
         for (int i = 0; i < accommodation.getAvailableStartDates().size(); i++) {
             Date availableStart = accommodation.getAvailableStartDates().get(i);
             Date availableEnd = accommodation.getAvailableEndDates().get(i);
@@ -197,7 +195,7 @@ public class AccommodationDetailActivity extends AppCompatActivity {
             }
         }
 
-        // Create a new booking
+        //create a new booking
         String bookingId = UUID.randomUUID().toString();
         Booking booking = new Booking(bookingId, userId, startDate, endDate);
         accommodation.getBookings().add(booking);
@@ -213,7 +211,7 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         int totalReviews = accommodation.getNumberOfReviews();
         float currentRating = accommodation.getRating();
 
-        // Calculate new average rating
+        //calculate new average rating
         float updatedRating = ((currentRating * totalReviews) + newRating) / (totalReviews + 1);
 
         accommodation.setRating(updatedRating);

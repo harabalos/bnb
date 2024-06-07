@@ -39,7 +39,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         searchAccommodations();
     }
 
-    private void searchAccommodations() { //search function as described in the description
+    private void searchAccommodations() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
             try (Socket socket = new Socket("192.168.0.6", 4321);
@@ -49,7 +49,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 out.writeObject("search");
 
                 if (noFilters) {
-                    out.writeObject("{}");  // Sending empty JSON string for no filters
+                    out.writeObject("{}");
                     Log.d("SearchAccommodations", "Empty JSON string sent");
                 } else {
                     out.writeObject(filters);  // Sending filters as String

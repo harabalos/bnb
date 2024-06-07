@@ -107,7 +107,7 @@ public class ConsoleClient {
                 jsonBuilder.append(line);
             }
             JSONArray accommodationArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
-            accommodations.clear(); // Clear the existing list before loading new data
+            accommodations.clear(); //clear the existing list before loading new data
             for (int i = 0; i < accommodationArray.length(); i++) {
                 accommodations.add(Accommodation.fromJson(accommodationArray.getJSONObject(i)));
             }
@@ -139,7 +139,7 @@ public class ConsoleClient {
 
         File userFile = new File(context.getFilesDir(), USER_FILE_PATH);
         if (!userFile.getParentFile().exists()) {
-            userFile.getParentFile().mkdirs(); // Create the app_data directory if it doesn't exist
+            userFile.getParentFile().mkdirs();
         }
 
         try (FileWriter file = new FileWriter(userFile)) {
@@ -164,7 +164,7 @@ public class ConsoleClient {
 
         File accommodationFile = new File(context.getFilesDir(), ACCOMMODATION_FILE_PATH);
         if (!accommodationFile.getParentFile().exists()) {
-            accommodationFile.getParentFile().mkdirs(); // Create the app_data directory if it doesn't exist
+            accommodationFile.getParentFile().mkdirs();
         }
 
         try (FileWriter file = new FileWriter(accommodationFile)) {

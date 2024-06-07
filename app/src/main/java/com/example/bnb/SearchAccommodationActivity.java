@@ -25,7 +25,7 @@ public class SearchAccommodationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_accommodation); // Make sure this matches your XML file name
+        setContentView(R.layout.activity_search_accommodation);
 
         locationEditText = findViewById(R.id.locationEditText);
         startDateEditText = findViewById(R.id.startDateEditText);
@@ -39,13 +39,13 @@ public class SearchAccommodationActivity extends AppCompatActivity {
         startDateEditText.setOnClickListener(v -> showDatePicker(startDateEditText));
         endDateEditText.setOnClickListener(v -> showDatePicker(endDateEditText));
 
-        Button searchButton = findViewById(R.id.searchButton); // Ensure this ID exists in the layout file
+        Button searchButton = findViewById(R.id.searchButton);
         searchButton.setOnClickListener(v -> performSearch());
 
-        Button noFiltersButton = findViewById(R.id.noFiltersButton); // Ensure this ID exists in the layout file
+        Button noFiltersButton = findViewById(R.id.noFiltersButton);
         noFiltersButton.setOnClickListener(v -> performSearchWithNoFilters());
 
-        Button logoutButton = findViewById(R.id.logoutButton); // Ensure this ID exists in the layout file
+        Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> finish());
     }
 

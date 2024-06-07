@@ -14,40 +14,34 @@ import org.json.JSONTokener;
 import java.util.Locale;
 
 public class AccommodationServer {
-    // List to store all accommodations loaded from the JSON file
     private static List<Accommodation> accommodationsList = new ArrayList<>();
-    // Predefined addresses for worker servers
     private static List<String> workerAddresses = List.of(
             "192.168.0.6:5001",
             "192.168.0.6:5002",
             "192.168.0.6:5003"
     );
 
-    // Entry point for the server
     public static void main(String[] args) {
-        // Load accommodations from JSON file into memory
         try {
             loadAccommodationsFromJson();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        int port = 4321; // The port number the server will listen on
+        int port = 4321;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
 
-            // Main server loop to accept and handle client connections
             while (true) {
-                Socket socket = serverSocket.accept(); // Accept a new client connection
+                Socket socket = serverSocket.accept();
                 System.out.println("New client connected");
-                new AccommodationHandler(socket).start(); // Handle the connection in a separate thread
+                new AccommodationHandler(socket).start();
             }
         } catch (IOException ex) {
             System.out.println("Server exception: " + ex.getMessage());
-            ex.printStackTrace(); // Print stack trace for troubleshooting
+            ex.printStackTrace();
         }
     }
 
-    // Method to load accommodations from a JSON file
     private static void loadAccommodationsFromJson() throws JSONException {
         try (BufferedReader reader = new BufferedReader(new FileReader("app/src/main/app_data/accommodation.json"))) {
             StringBuilder jsonBuilder = new StringBuilder();
@@ -58,7 +52,6 @@ public class AccommodationServer {
             JSONArray accommodationsArray = new JSONArray(new JSONTokener(jsonBuilder.toString()));
             for (int i = 0; i < accommodationsArray.length(); i++) {
                 JSONObject accommodationObject = accommodationsArray.getJSONObject(i);
-                // Extract details from each JSON object
                 String name = accommodationObject.getString("name");
                 String location = accommodationObject.getString("location");
                 int capacity = accommodationObject.getInt("capacity");
@@ -67,24 +60,20 @@ public class AccommodationServer {
                 String imagePath = accommodationObject.getString("imagePath");
                 int numberOfReviews = accommodationObject.optInt("numberOfReviews", 0);
 
-                // Parse the dates
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-                // Parse available start dates
                 JSONArray startDatesArray = accommodationObject.getJSONArray("availableStartDates");
                 ArrayList<Date> availableStartDates = new ArrayList<>();
                 for (int j = 0; j < startDatesArray.length(); j++) {
                     availableStartDates.add(sdf.parse(startDatesArray.getString(j)));
                 }
 
-                // Parse available end dates
                 JSONArray endDatesArray = accommodationObject.getJSONArray("availableEndDates");
                 ArrayList<Date> availableEndDates = new ArrayList<>();
                 for (int j = 0; j < endDatesArray.length(); j++) {
                     availableEndDates.add(sdf.parse(endDatesArray.getString(j)));
                 }
 
-                // Parse the bookings
                 JSONArray jsonBookings = accommodationObject.getJSONArray("bookings");
                 ArrayList<Booking> bookings = new ArrayList<>();
                 for (int j = 0; j < jsonBookings.length(); j++) {
@@ -97,10 +86,8 @@ public class AccommodationServer {
                     bookings.add(booking);
                 }
 
-                // Extract managerId
                 String managerId = accommodationObject.getString("managerId");
 
-                // Create a new Accommodation object and add it to the list
                 Accommodation accommodation = new Accommodation(
                         name, location, capacity, availableStartDates, availableEndDates,
                         pricePerNight, rating, imagePath, bookings, managerId,numberOfReviews
@@ -114,16 +101,13 @@ public class AccommodationServer {
         }
     }
 
-    // Inner class that handles client connections
     private static class AccommodationHandler extends Thread {
         private Socket socket;
 
-        // Constructor that takes the client socket
         public AccommodationHandler(Socket socket) {
             this.socket = socket;
         }
 
-        // Method where the thread's execution begins
         public void run() {
             ObjectOutputStream output = null;
             ObjectInputStream input = null;
@@ -140,6 +124,7 @@ public class AccommodationServer {
                             accommodationsList.add(accommodation);
                             sendToWorker(accommodation);
                             saveAccommodationsToJson();
+                            accommodationsList.notifyAll(); //Notify other threads waiting on this resource
                         }
                         System.out.println("Received and added accommodation: " + accommodation.getName());
                         output.writeObject("Accommodation " + accommodation.getName() + " added successfully");
@@ -148,25 +133,43 @@ public class AccommodationServer {
                         String command = (String) obj;
                         if ("view".equals(command)) {
                             String managerId = (String) input.readObject();
-                            String response = viewAccommodations(managerId);
-                            output.writeObject(response);
-                            output.flush();
+                            synchronized (accommodationsList) {
+                                while (accommodationsList.isEmpty()) {
+                                    accommodationsList.wait(); //Wait for data to be available
+                                }
+                                String response = viewAccommodations(managerId);
+                                output.writeObject(response);
+                                output.flush();
+                            }
                         } else if ("search".equals(command)) {
                             String filtersString = (String) input.readObject();
                             JSONObject filters = new JSONObject(filtersString);
-                            String response = searchAccommodations(filters);
-                            output.writeObject(response);
-                            output.flush();
+                            synchronized (accommodationsList) {
+                                while (accommodationsList.isEmpty()) {
+                                    accommodationsList.wait(); //Wait for data to be available
+                                }
+                                String response = searchAccommodations(filters);
+                                output.writeObject(response);
+                                output.flush();
+                            }
                         } else if ("update".equals(command)) {
                             Accommodation accommodation = (Accommodation) input.readObject();
-                            updateAccommodation(accommodation);
+                            synchronized (accommodationsList) {
+                                updateAccommodation(accommodation);
+                                accommodationsList.notifyAll(); //Notify other threads waiting on this resource
+                            }
                             output.writeObject("Accommodation updated successfully");
                             output.flush();
-                    }   else if ("viewBookings".equals(command)) {
+                        } else if ("viewBookings".equals(command)) {
                             String userId = (String) input.readObject();
-                            String response = viewBookings(userId);
-                            output.writeObject(response);
-                            output.flush();
+                            synchronized (accommodationsList) {
+                                while (accommodationsList.isEmpty()) {
+                                    accommodationsList.wait(); //Wait for data to be available
+                                }
+                                String response = viewBookings(userId);
+                                output.writeObject(response);
+                                output.flush();
+                            }
                         }
                     }
                 }
@@ -175,6 +178,9 @@ public class AccommodationServer {
                 ex.printStackTrace();
             } catch (JSONException e) {
                 throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                System.err.println("Thread was interrupted: " + e.getMessage());
+                e.printStackTrace();
             } finally {
                 try {
                     if (input != null) input.close();
@@ -185,6 +191,8 @@ public class AccommodationServer {
                 }
             }
         }
+
+
 
         private void updateAccommodation(Accommodation accommodation) {
             synchronized (accommodationsList) {
@@ -222,40 +230,34 @@ public class AccommodationServer {
 
 
 
-        // Method to send an Accommodation to a worker server based on a hash function
         private void sendToWorker(Accommodation accommodation) {
-            // Calculate the index of the worker server from the hash of the accommodation name
             int workerIndex = Math.abs(accommodation.getName().hashCode()) % workerAddresses.size();
             String workerAddress = workerAddresses.get(workerIndex);
-            String[] parts = workerAddress.split(":"); // Split the address into IP and port
+            String[] parts = workerAddress.split(":"); //split the address into IP and port
 
             Socket workerSocket = null;
             ObjectOutputStream toWorker = null;
             ObjectInputStream fromWorker = null;
 
             try {
-                // Establish connection to the worker server
+                //establish connection to the worker server
                 workerSocket = new Socket(parts[0], Integer.parseInt(parts[1]));
                 Socket backupWorketSocket = new Socket("192.168.0.6", 5004);
                 toWorker = new ObjectOutputStream(workerSocket.getOutputStream());
                 ObjectOutputStream backupWorker = new ObjectOutputStream(backupWorketSocket.getOutputStream());
                 backupWorker.writeObject(accommodation);
-                toWorker.writeObject(accommodation); // Send the accommodation to the worker
-                toWorker.flush(); // Flush the stream
+                toWorker.writeObject(accommodation); //send the accommodation to the worker
+                toWorker.flush();
 
-                // Receive acknowledgment from the worker server
                 fromWorker = new ObjectInputStream(workerSocket.getInputStream());
-                String ack = (String) fromWorker.readObject(); // Read the acknowledgment
-                System.out.println("Acknowledgment from worker: " + ack); // Log acknowledgment
+                String ack = (String) fromWorker.readObject();
+                System.out.println("Acknowledgment from worker: " + ack);
 
             } catch (IOException e) {
-                // Handle IO exceptions during communication with worker
                 System.err.println("IO Error when communicating with worker: " + e.getMessage());
             } catch (ClassNotFoundException e) {
-                // Handle exceptions related to class not found during acknowledgment read
                 System.err.println("Class not found error when reading acknowledgment: " + e.getMessage());
             } finally {
-                // Close resources safely in the finally block
                 closeResource(fromWorker);
                 closeResource(toWorker);
                 closeResource(workerSocket);
@@ -265,26 +267,22 @@ public class AccommodationServer {
         private void closeResource(Closeable resource) {
             if (resource != null) {
                 try {
-                    resource.close(); // Attempt to close the resource
+                    resource.close();
                 } catch (IOException e) {
-                    System.err.println("Failed to close resource: " + e.getMessage()); // Log failure
+                    System.err.println("Failed to close resource: " + e.getMessage());
                 }
             }
         }
 
-        // Method to save the current state of accommodations to a JSON file
         private void saveAccommodationsToJson() throws JSONException {
-            // Convert accommodationsList to a JSONArray
             JSONArray accommodationsArray = new JSONArray();
             for (Accommodation accommodation : accommodationsList) {
-                accommodationsArray.put(accommodation.toJSON()); // Add each accommodation as a JSON object
+                accommodationsArray.put(accommodation.toJSON());
             }
 
-            // Write the JSONArray to the file
             try (FileWriter file = new FileWriter("app/src/main/app_data/accommodation.json")) {
-                file.write(accommodationsArray.toString(4)); // Write JSON with indentation
+                file.write(accommodationsArray.toString(4));
             } catch (IOException e) {
-                // Handle exceptions related to file writing
                 e.printStackTrace();
             }
         }

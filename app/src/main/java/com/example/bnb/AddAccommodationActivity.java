@@ -181,5 +181,3 @@ public class AddAccommodationActivity extends AppCompatActivity {
         }
     }
 }
-
-//Na ftiaksw to viewAccommodation
