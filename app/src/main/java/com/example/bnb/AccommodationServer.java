@@ -157,11 +157,16 @@ public class AccommodationServer {
                             output.writeObject(response);
                             output.flush();
                         } else if ("update".equals(command)) {
-                        Accommodation accommodation = (Accommodation) input.readObject();
-                        updateAccommodation(accommodation);
-                        output.writeObject("Accommodation updated successfully");
-                        output.flush();
-                    }
+                            Accommodation accommodation = (Accommodation) input.readObject();
+                            updateAccommodation(accommodation);
+                            output.writeObject("Accommodation updated successfully");
+                            output.flush();
+                    }   else if ("viewBookings".equals(command)) {
+                            String userId = (String) input.readObject();
+                            String response = viewBookings(userId);
+                            output.writeObject(response);
+                            output.flush();
+                        }
                     }
                 }
             } catch (IOException | ClassNotFoundException ex) {
@@ -194,6 +199,23 @@ public class AccommodationServer {
                     throw new RuntimeException(e);
                 }
             }
+        }
+
+        private String viewBookings(String userId) throws JSONException {
+            JSONArray bookingsArray = new JSONArray();
+            synchronized (accommodationsList) {
+                for (Accommodation accommodation : accommodationsList) {
+                    for (Booking booking : accommodation.getBookings()) {
+                        if (booking.getUserId().equals(userId)) {
+                            JSONObject bookingJson = new JSONObject();
+                            bookingJson.put("accommodation", accommodation.toJSON());
+                            bookingJson.put("booking", booking.toJSON());
+                            bookingsArray.put(bookingJson);
+                        }
+                    }
+                }
+            }
+            return bookingsArray.toString();
         }
 
 
