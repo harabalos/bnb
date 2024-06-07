@@ -236,7 +236,10 @@ public class AccommodationServer {
             try {
                 // Establish connection to the worker server
                 workerSocket = new Socket(parts[0], Integer.parseInt(parts[1]));
+                Socket backupWorketSocket = new Socket("192.168.0.6", 5004);
                 toWorker = new ObjectOutputStream(workerSocket.getOutputStream());
+                ObjectOutputStream backupWorker = new ObjectOutputStream(backupWorketSocket.getOutputStream());
+                backupWorker.writeObject(accommodation);
                 toWorker.writeObject(accommodation); // Send the accommodation to the worker
                 toWorker.flush(); // Flush the stream
 

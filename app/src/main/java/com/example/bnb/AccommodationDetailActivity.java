@@ -175,7 +175,7 @@ public class AccommodationDetailActivity extends AppCompatActivity {
         return false;
     }
 
-    private void bookAccommodation() {
+    private void bookAccommodation() { //book function as described in the description
         String userId = getIntent().getStringExtra("id");
 
         // Update the available dates in the accommodation

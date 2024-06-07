@@ -39,7 +39,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         searchAccommodations();
     }
 
-    private void searchAccommodations() {
+    private void searchAccommodations() { //search function as described in the description
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
             try (Socket socket = new Socket("192.168.0.6", 4321);
